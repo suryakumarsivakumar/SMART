@@ -21,7 +21,9 @@ class _DoctorScreenState extends ConsumerState<DoctorScreen> {
   final departmentController = TextEditingController();
   final specializationController = TextEditingController();
   final contactController = TextEditingController();
-
+  final anesthetistController = TextEditingController();
+  final otInchargeController = TextEditingController();
+  final surgeryTypeController = TextEditingController();
   @override
   void dispose() {
     doctorNameController.dispose();
@@ -30,6 +32,9 @@ class _DoctorScreenState extends ConsumerState<DoctorScreen> {
     departmentController.dispose();
     specializationController.dispose();
     contactController.dispose();
+    anesthetistController.dispose();
+    otInchargeController.dispose();
+    surgeryTypeController.dispose();
     super.dispose();
   }
 
@@ -96,7 +101,30 @@ class _DoctorScreenState extends ConsumerState<DoctorScreen> {
               ),
 
               const SizedBox(height: 30),
+              TextFormField(
+                controller: anesthetistController,
+                decoration: const InputDecoration(
+                  labelText: "Anesthetist Name",
+                ),
+              ),
 
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: otInchargeController,
+                decoration: const InputDecoration(
+                  labelText: "OT Incharge Name",
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: surgeryTypeController,
+                decoration: const InputDecoration(labelText: "Surgery Type"),
+              ),
+
+              const SizedBox(height: 15),
               SizedBox(
                 width: double.infinity,
 
@@ -109,6 +137,9 @@ class _DoctorScreenState extends ConsumerState<DoctorScreen> {
                       department: departmentController.text,
                       specialization: specializationController.text,
                       contactNumber: contactController.text,
+                      anesthetistName: anesthetistController.text,
+                      otInchargeName: otInchargeController.text,
+                      surgeryType: surgeryTypeController.text,
                     );
 
                     ref.read(sessionProvider.notifier).saveDoctor(doctor);

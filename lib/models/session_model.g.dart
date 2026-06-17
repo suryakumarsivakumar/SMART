@@ -21,6 +21,9 @@ class SessionModelAdapter extends TypeAdapter<SessionModel> {
       patientId: fields[1] as String,
       doctorId: fields[2] as String,
       deviceId: fields[3] as String,
+      patientName: fields[10] as String,
+      doctorName: fields[11] as String,
+      deviceName: fields[12] as String,
       totalPressCount: fields[4] as int,
       averageForce: fields[5] as double,
       maxForce: fields[6] as double,
@@ -33,7 +36,7 @@ class SessionModelAdapter extends TypeAdapter<SessionModel> {
   @override
   void write(BinaryWriter writer, SessionModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.sessionId)
       ..writeByte(1)
@@ -53,7 +56,13 @@ class SessionModelAdapter extends TypeAdapter<SessionModel> {
       ..writeByte(8)
       ..write(obj.startTime)
       ..writeByte(9)
-      ..write(obj.endTime);
+      ..write(obj.endTime)
+      ..writeByte(10)
+      ..write(obj.patientName)
+      ..writeByte(11)
+      ..write(obj.doctorName)
+      ..writeByte(12)
+      ..write(obj.deviceName);
   }
 
   @override

@@ -22,13 +22,17 @@ class DeviceModelAdapter extends TypeAdapter<DeviceModel> {
       ipAddress: fields[2] as String,
       connected: fields[3] as bool,
       lastSeen: fields[4] as DateTime,
+      instrumentName: fields[5] as String,
+      sterilizationDate: fields[6] as DateTime,
+      isReused: fields[7] as bool,
+      reuseCount: fields[8] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, DeviceModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.deviceId)
       ..writeByte(1)
@@ -38,7 +42,15 @@ class DeviceModelAdapter extends TypeAdapter<DeviceModel> {
       ..writeByte(3)
       ..write(obj.connected)
       ..writeByte(4)
-      ..write(obj.lastSeen);
+      ..write(obj.lastSeen)
+      ..writeByte(5)
+      ..write(obj.instrumentName)
+      ..writeByte(6)
+      ..write(obj.sterilizationDate)
+      ..writeByte(7)
+      ..write(obj.isReused)
+      ..writeByte(8)
+      ..write(obj.reuseCount);
   }
 
   @override

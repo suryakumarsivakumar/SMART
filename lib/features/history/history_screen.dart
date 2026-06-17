@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:go_router/go_router.dart';
-import '../../models/session_model.dart';
 
-class HistoryScreen extends StatefulWidget {
+import 'procedure_details_screen.dart';
+import '../../models/session_model.dart';
+import '../../providers/pdf_provider.dart';
+
+class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
+  ConsumerState<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
+class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   late Box<SessionModel> sessionBox;
 
   @override
@@ -22,7 +26,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final sessions = sessionBox.values.toList();
+    final sessions = sessionBox.values.toList().reversed.toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -36,7 +40,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
 
       body: sessions.isEmpty
-          ? const Center(child: Text('No Procedures Found'))
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.history, size: 80),
+
+                  SizedBox(height: 20),
+
+                  Text(
+                    "No Procedures Recorded Yet",
+                    style: TextStyle(fontSize: 18),
+                  ),
+                ],
+              ),
+            )
           : ListView.builder(
               itemCount: sessions.length,
 
@@ -46,102 +64,122 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return Card(
                   margin: const EdgeInsets.all(10),
 
-            child: Padding(
-  padding: const EdgeInsets.all(16),
+                  elevation: 4,
 
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
 
-    children: [
-      Row(
-        children: [
-          const Icon(Icons.history),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
 
-          const SizedBox(width: 10),
+                      children: [
+                        //--------------------------------
+                        // PATIENT
+                        //--------------------------------
+                        Row(
+                          children: [
+                            const Icon(Icons.person),
 
-          Expanded(
-            child: Text(
-              session.sessionId,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
+                            const SizedBox(width: 10),
 
-      const SizedBox(height: 12),
+                            Expanded(
+                              child: Text(
+                                session.patientName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
 
-      Text(
-        'Press Count: ${session.totalPressCount}',
-      ),
+                        const SizedBox(height: 12),
 
-      Text(
-        'Max Force: ${session.maxForce.toStringAsFixed(1)}',
-      ),
+                        //--------------------------------
+                        // DOCTOR
+                        //--------------------------------
+                        Text('Doctor: ${session.doctorName}'),
 
-      Text(
-        'Duration: ${session.durationSeconds}s',
-      ),
+                        //--------------------------------
+                        // DEVICE
+                        //--------------------------------
+                        Text('Device: ${session.deviceName}'),
 
-      Text(
-        session.startTime.toString(),
-      ),
+                        const Divider(height: 24),
 
-      const SizedBox(height: 16),
+                        //--------------------------------
+                        // PROCEDURE DATA
+                        //--------------------------------
+                        Text('Press Count: ${session.totalPressCount}'),
 
-      //--------------------------------
-      // VIEW + PDF BUTTONS
-      //--------------------------------
-      Row(
-        children: [
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: () {
-                // Later:
-                // Open Session Details Screen
-              },
+                        Text(
+                          'Max Force: ${session.maxForce.toStringAsFixed(1)}',
+                        ),
 
-              icon: const Icon(Icons.visibility),
+                        Text(
+                          'Average Force: ${session.averageForce.toStringAsFixed(1)}',
+                        ),
 
-              label: const Text(
-                "View",
-              ),
-            ),
-          ),
+                        Text('Duration: ${session.durationSeconds}s'),
 
-          const SizedBox(width: 10),
+                        Text('Date: ${session.startTime}'),
 
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                // Later:
-                // Generate PDF for THIS session
+                        const SizedBox(height: 16),
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Session PDF coming soon',
+                        //--------------------------------
+                        // ACTION BUTTONS
+                        //--------------------------------
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ProcedureDetailsScreen(
+                                        session: session,
+                                      ),
+                                    ),
+                                  );
+                                },
+
+                                icon: const Icon(Icons.visibility),
+
+                                label: const Text("View"),
+                              ),
+                            ),
+
+                            const SizedBox(width: 10),
+
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  final pdfService = ref.read(pdfProvider);
+
+                                  final file = await pdfService
+                                      .generateSessionReport(session);
+
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Saved: ${file.path}'),
+                                      ),
+                                    );
+                                  }
+                                },
+
+                                icon: const Icon(Icons.picture_as_pdf),
+
+                                label: const Text("PDF"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
-
-              icon: const Icon(
-                Icons.picture_as_pdf,
-              ),
-
-              label: const Text(
-                "PDF",
-              ),
-            ),
-          ),
-        ],
-      ),
-    ],
-  ),
-),
                 );
               },
             ),

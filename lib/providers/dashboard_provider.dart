@@ -110,6 +110,12 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
       deviceId: session.deviceName ?? 'BIOPSY_DEVICE',
 
+      patientName: session.patient?.patientName ?? 'Unknown Patient',
+
+      doctorName: session.doctor?.doctorName ?? 'Unknown Doctor',
+
+      deviceName: session.deviceName ?? 'Unknown Device',
+
       totalPressCount: 0,
       averageForce: 0,
       maxForce: 0,

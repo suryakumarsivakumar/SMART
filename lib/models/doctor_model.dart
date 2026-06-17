@@ -21,7 +21,14 @@ class DoctorModel extends HiveObject {
 
   @HiveField(5)
   String contactNumber;
+  @HiveField(6)
+  String anesthetistName;
 
+  @HiveField(7)
+  String otInchargeName;
+
+  @HiveField(8)
+  String surgeryType;
   DoctorModel({
     required this.doctorId,
     required this.doctorName,
@@ -29,5 +36,8 @@ class DoctorModel extends HiveObject {
     required this.department,
     required this.specialization,
     required this.contactNumber,
+    required this.anesthetistName,
+    required this.otInchargeName,
+    required this.surgeryType,
   });
 }

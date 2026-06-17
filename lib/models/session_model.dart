@@ -33,12 +33,25 @@ class SessionModel extends HiveObject {
 
   @HiveField(9)
   DateTime endTime;
+  @HiveField(10)
+  String patientName;
 
+  @HiveField(11)
+  String doctorName;
+
+  @HiveField(12)
+  String deviceName;
   SessionModel({
     required this.sessionId,
+
     required this.patientId,
     required this.doctorId,
     required this.deviceId,
+
+    required this.patientName,
+    required this.doctorName,
+    required this.deviceName,
+
     required this.totalPressCount,
     required this.averageForce,
     required this.maxForce,

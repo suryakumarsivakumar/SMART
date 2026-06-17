@@ -18,6 +18,17 @@ class DeviceModel extends HiveObject {
 
   @HiveField(4)
   DateTime lastSeen;
+  @HiveField(5)
+  String instrumentName;
+
+  @HiveField(6)
+  DateTime sterilizationDate;
+
+  @HiveField(7)
+  bool isReused;
+
+  @HiveField(8)
+  int reuseCount;
 
   DeviceModel({
     required this.deviceId,
@@ -25,5 +36,9 @@ class DeviceModel extends HiveObject {
     required this.ipAddress,
     required this.connected,
     required this.lastSeen,
+    required this.instrumentName,
+    required this.sterilizationDate,
+    required this.isReused,
+    required this.reuseCount,
   });
 }

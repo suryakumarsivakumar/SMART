@@ -23,13 +23,16 @@ class DoctorModelAdapter extends TypeAdapter<DoctorModel> {
       department: fields[3] as String,
       specialization: fields[4] as String,
       contactNumber: fields[5] as String,
+      anesthetistName: fields[6] as String,
+      otInchargeName: fields[7] as String,
+      surgeryType: fields[8] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, DoctorModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.doctorId)
       ..writeByte(1)
@@ -41,7 +44,13 @@ class DoctorModelAdapter extends TypeAdapter<DoctorModel> {
       ..writeByte(4)
       ..write(obj.specialization)
       ..writeByte(5)
-      ..write(obj.contactNumber);
+      ..write(obj.contactNumber)
+      ..writeByte(6)
+      ..write(obj.anesthetistName)
+      ..writeByte(7)
+      ..write(obj.otInchargeName)
+      ..writeByte(8)
+      ..write(obj.surgeryType);
   }
 
   @override

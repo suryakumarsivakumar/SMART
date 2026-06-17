@@ -32,6 +32,14 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
   final notesController = TextEditingController();
 
   String gender = "Male";
+  final uhidController = TextEditingController();
+  final ipNumberController = TextEditingController();
+  final admissionNumberController = TextEditingController();
+  final wardController = TextEditingController();
+  final bedNumberController = TextEditingController();
+  final bedTypeController = TextEditingController();
+  final procedureController = TextEditingController();
+  final dobController = TextEditingController();
 
   @override
   void dispose() {
@@ -43,7 +51,13 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
     departmentController.dispose();
     diagnosisController.dispose();
     notesController.dispose();
-
+    uhidController.dispose();
+    ipNumberController.dispose();
+    admissionNumberController.dispose();
+    wardController.dispose();
+    bedNumberController.dispose();
+    bedTypeController.dispose();
+    procedureController.dispose();
     super.dispose();
   }
 
@@ -81,13 +95,69 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
               ),
 
               const SizedBox(height: 15),
+              TextFormField(
+                controller: uhidController,
+                decoration: const InputDecoration(labelText: "UHID"),
+              ),
 
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: ipNumberController,
+                decoration: const InputDecoration(labelText: "IP Number"),
+              ),
+
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: admissionNumberController,
+                decoration: const InputDecoration(
+                  labelText: "Admission Number",
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: wardController,
+                decoration: const InputDecoration(labelText: "Ward"),
+              ),
+
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: bedNumberController,
+                decoration: const InputDecoration(labelText: "Bed Number"),
+              ),
+
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: bedTypeController,
+                decoration: const InputDecoration(labelText: "Bed Type"),
+              ),
+
+              const SizedBox(height: 15),
+
+              TextFormField(
+                controller: procedureController,
+                decoration: const InputDecoration(labelText: "Procedure"),
+              ),
+
+              const SizedBox(height: 15),
               TextFormField(
                 controller: ageController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: "Age"),
               ),
 
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: dobController,
+                decoration: const InputDecoration(
+                  labelText: "DOB (dd/mm/yyyy)",
+                ),
+              ),
               const SizedBox(height: 15),
 
               DropdownButtonFormField<String>(
@@ -157,12 +227,22 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                       patientId: patientIdController.text,
                       patientName: patientNameController.text,
                       age: int.tryParse(ageController.text) ?? 0,
+                      dob:
+                          DateTime.tryParse(dobController.text) ??
+                          DateTime.now(),
                       gender: gender,
                       mobileNumber: mobileController.text,
                       hospitalName: hospitalController.text,
                       department: departmentController.text,
                       diagnosis: diagnosisController.text,
                       notes: notesController.text,
+                      uhid: uhidController.text,
+                      ipNumber: ipNumberController.text,
+                      admissionNumber: admissionNumberController.text,
+                      ward: wardController.text,
+                      bedNumber: bedNumberController.text,
+                      bedType: bedTypeController.text,
+                      procedureName: procedureController.text,
                     );
 
                     ref.read(sessionProvider.notifier).savePatient(patient);
