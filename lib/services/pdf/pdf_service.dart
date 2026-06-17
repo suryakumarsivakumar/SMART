@@ -1,0 +1,95 @@
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+import '../../providers/session_provider.dart';
+
+class PdfService {
+  Future<File> generateReport({
+    required SessionData session,
+
+    required int totalPresses,
+
+    required double averageForce,
+
+    required double maximumForce,
+
+    required Duration duration,
+  }) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+
+        build: (context) => [
+          pw.Header(level: 0, child: pw.Text('SMART Report')),
+
+          pw.SizedBox(height: 20),
+
+          pw.Text('Surgical Monitoring and Analytics for Real-Time Tracking'),
+
+          pw.Divider(),
+
+          pw.Text(
+            'PATIENT INFORMATION',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+
+          pw.Text('Patient Name: ${session.patient?.patientName ?? ""}'),
+
+          pw.Text('Patient ID: ${session.patient?.patientId ?? ""}'),
+
+          pw.Text('Diagnosis: ${session.patient?.diagnosis ?? ""}'),
+
+          pw.SizedBox(height: 20),
+
+          pw.Text(
+            'DOCTOR INFORMATION',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+
+          pw.Text('Doctor Name: ${session.doctor?.doctorName ?? ""}'),
+
+          pw.Text('Doctor ID: ${session.doctor?.doctorId ?? ""}'),
+
+          pw.Text('Department: ${session.doctor?.department ?? ""}'),
+
+          pw.SizedBox(height: 20),
+
+          pw.Text(
+            'DEVICE',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+
+          pw.Text(session.deviceName ?? ''),
+
+          pw.SizedBox(height: 20),
+
+          pw.Text(
+            'PROCEDURE ANALYTICS',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+
+          pw.Text('Total Presses: $totalPresses'),
+
+          pw.Text('Average Force: ${averageForce.toStringAsFixed(1)}'),
+
+          pw.Text('Maximum Force: ${maximumForce.toStringAsFixed(1)}'),
+
+          pw.Text('Duration: ${duration.inSeconds} sec'),
+        ],
+      ),
+    );
+
+    final dir = await getApplicationDocumentsDirectory();
+
+    final file = File('${dir.path}/SMART_Report.pdf');
+
+    await file.writeAsBytes(await pdf.save());
+
+    return file;
+  }
+}
