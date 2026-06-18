@@ -67,6 +67,18 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   DateTime? _startTime;
 
+  // ===================================================
+  // CONNECTION TEST ONLY
+  // ===================================================
+
+  Future<bool> checkConnectionOnly() async {
+    return await _service.testConnection();
+  }
+
+  // ===================================================
+  // START MONITORING
+  // ===================================================
+
   Future<bool> startMonitoring() async {
     final connected = await _service.testConnection();
 
@@ -123,6 +135,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       startTime: DateTime.now(),
       endTime: DateTime.now(),
     );
+
+    print('START MONITORING');
+    print('Patient = ${session.patient?.patientName}');
+    print('Doctor = ${session.doctor?.doctorName}');
+    print('Device = ${session.deviceName}');
 
     _service.startMonitoring();
 
@@ -211,11 +228,20 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   Future<void> stopMonitoring() async {
+    print('STOP MONITORING CALLED');
+
     _service.stopMonitoring();
 
     await _subscription?.cancel();
 
+    print('currentSession = $currentSession');
+
     if (currentSession != null) {
+      print('Saving Session...');
+      print('Patient: ${currentSession!.patientName}');
+      print('Doctor: ${currentSession!.doctorName}');
+      print('Device: ${currentSession!.deviceName}');
+
       currentSession!
         ..totalPressCount = _pressCount
         ..averageForce = (_sampleCount == 0) ? 0 : _forceSum / _sampleCount
@@ -224,6 +250,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         ..endTime = DateTime.now();
 
       await _sessionRepository.save(currentSession!);
+
+      print('SESSION SAVED');
+    } else {
+      print('currentSession is NULL');
     }
 
     state = state.copyWith(procedureEnded: true);

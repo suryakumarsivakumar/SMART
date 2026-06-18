@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -8,6 +9,10 @@ import '../../providers/session_provider.dart';
 import '../../models/session_model.dart';
 
 class PdfService {
+  // ===================================================
+  // LIVE PROCEDURE PDF
+  // ===================================================
+
   Future<File> generateReport({
     required SessionData session,
     required int totalPresses,
@@ -35,9 +40,7 @@ class PdfService {
           ),
 
           pw.Text('Patient Name: ${session.patient?.patientName ?? ""}'),
-
           pw.Text('Patient ID: ${session.patient?.patientId ?? ""}'),
-
           pw.Text('Diagnosis: ${session.patient?.diagnosis ?? ""}'),
 
           pw.SizedBox(height: 20),
@@ -48,9 +51,7 @@ class PdfService {
           ),
 
           pw.Text('Doctor Name: ${session.doctor?.doctorName ?? ""}'),
-
           pw.Text('Doctor ID: ${session.doctor?.doctorId ?? ""}'),
-
           pw.Text('Department: ${session.doctor?.department ?? ""}'),
 
           pw.SizedBox(height: 20),
@@ -70,27 +71,30 @@ class PdfService {
           ),
 
           pw.Text('Total Presses: $totalPresses'),
-
           pw.Text('Average Force: ${averageForce.toStringAsFixed(1)}'),
-
           pw.Text('Maximum Force: ${maximumForce.toStringAsFixed(1)}'),
-
           pw.Text('Duration: ${duration.inSeconds} sec'),
         ],
       ),
     );
 
+    final bytes = await pdf.save();
+
     final dir = await getApplicationDocumentsDirectory();
 
-    final file = File('${dir.path}/SMART_Report.pdf');
+    final file = File(
+      '${dir.path}/SMART_Report_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
 
-    await file.writeAsBytes(await pdf.save());
+    await file.writeAsBytes(bytes);
+
+    await OpenFilex.open(file.path);
 
     return file;
   }
 
   // ===================================================
-  // PHASE 7D - HISTORY SESSION PDF
+  // HISTORY PROCEDURE PDF
   // ===================================================
 
   Future<File> generateSessionReport(SessionModel session) async {
@@ -163,11 +167,15 @@ class PdfService {
       ),
     );
 
-    final directory = await getApplicationDocumentsDirectory();
+    final bytes = await pdf.save();
 
-    final file = File('${directory.path}/${session.sessionId}.pdf');
+    final dir = await getApplicationDocumentsDirectory();
 
-    await file.writeAsBytes(await pdf.save());
+    final file = File('${dir.path}/${session.sessionId}.pdf');
+
+    await file.writeAsBytes(bytes);
+
+    await OpenFilex.open(file.path);
 
     return file;
   }

@@ -11,10 +11,8 @@ class ConnectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text("Device Connection")),
-
       body: Padding(
         padding: const EdgeInsets.all(20),
-
         child: Column(
           children: [
             const Card(
@@ -30,7 +28,7 @@ class ConnectionScreen extends ConsumerWidget {
               onPressed: () async {
                 final dashboardNotifier = ref.read(dashboardProvider.notifier);
 
-                final connected = await dashboardNotifier.startMonitoring();
+                final connected = await dashboardNotifier.checkConnectionOnly();
 
                 if (connected) {
                   if (context.mounted) {
@@ -50,7 +48,6 @@ class ConnectionScreen extends ConsumerWidget {
                   );
                 }
               },
-
               child: const Text("Connect"),
             ),
           ],

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../providers/session_provider.dart';
+import '../../providers/dashboard_provider.dart';
 
 class DeviceSelectionScreen extends ConsumerStatefulWidget {
   const DeviceSelectionScreen({super.key});
@@ -24,25 +25,18 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
           selectedDevice = title;
         });
       },
-
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-
         margin: const EdgeInsets.only(bottom: 15),
-
         padding: const EdgeInsets.all(20),
-
         decoration: BoxDecoration(
           color: selected ? Colors.teal.withValues(alpha: 0.2) : Colors.white10,
-
           borderRadius: BorderRadius.circular(20),
-
           border: Border.all(
             color: selected ? Colors.teal : Colors.transparent,
             width: 2,
           ),
         ),
-
         child: Row(
           children: [
             Icon(icon, size: 40),
@@ -78,38 +72,67 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
         ),
         title: const Text("Select Device"),
       ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              buildDeviceCard("Biopsy Device", Icons.medical_services),
 
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+              buildDeviceCard("Needle Device", Icons.vaccines),
 
-        child: Column(
-          children: [
-            buildDeviceCard("Biopsy Device", Icons.medical_services),
+              buildDeviceCard("Endoscope", Icons.visibility),
 
-            buildDeviceCard("Needle Device", Icons.vaccines),
+              buildDeviceCard("Surgical Forceps", Icons.build),
 
-            buildDeviceCard("Endoscope", Icons.visibility),
+              buildDeviceCard("Catheter Device", Icons.water_drop),
 
-            buildDeviceCard("Surgical Forceps", Icons.build),
+              const SizedBox(height: 40),
 
-            buildDeviceCard("Catheter Device", Icons.water_drop),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final session = ref.read(sessionProvider);
 
-            const Spacer(),
+                    print(
+                      'DEVICE SCREEN PATIENT: ${session.patient?.patientName}',
+                    );
 
-            SizedBox(
-              width: double.infinity,
+                    print(
+                      'DEVICE SCREEN DOCTOR: ${session.doctor?.doctorName}',
+                    );
 
-              child: ElevatedButton(
-                onPressed: () {
-                  ref.read(sessionProvider.notifier).saveDevice(selectedDevice);
+                    print('DEVICE SCREEN DEVICE: $selectedDevice');
 
-                  context.go('/dashboard');
-                },
+                    ref
+                        .read(sessionProvider.notifier)
+                        .saveDevice(selectedDevice);
 
-                child: const Text("Start Procedure"),
+                    final started = await ref
+                        .read(dashboardProvider.notifier)
+                        .startMonitoring();
+
+                    if (!started) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Unable to connect to SMART Device'),
+                          ),
+                        );
+                      }
+                      return;
+                    }
+
+                    if (context.mounted) {
+                      context.go('/dashboard');
+                    }
+                  },
+                  child: const Text("Start Procedure"),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

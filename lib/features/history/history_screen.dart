@@ -27,6 +27,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final sessions = sessionBox.values.toList().reversed.toList();
+    print('History Sessions Count: ${sessions.length}');
 
     return Scaffold(
       appBar: AppBar(
@@ -156,22 +157,41 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                             Expanded(
                               child: ElevatedButton.icon(
                                 onPressed: () async {
-                                  final pdfService = ref.read(pdfProvider);
+                                  try {
+                                    print('PDF BUTTON PRESSED');
 
-                                  final file = await pdfService
-                                      .generateSessionReport(session);
+                                    final pdfService = ref.read(pdfProvider);
 
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Saved: ${file.path}'),
-                                      ),
-                                    );
+                                    print('GENERATING PDF...');
+                                    final file = await pdfService
+                                        .generateSessionReport(session);
+
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Saved: ${file.path}'),
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    print('Error generating PDF: $e');
+
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Error generating PDF: $e',
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
-
                                 icon: const Icon(Icons.picture_as_pdf),
-
                                 label: const Text("PDF"),
                               ),
                             ),
