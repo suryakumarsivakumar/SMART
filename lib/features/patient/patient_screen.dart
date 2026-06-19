@@ -249,7 +249,6 @@ class _PatientScreenState extends ConsumerState<PatientScreen> {
                     ref.read(patientRepositoryProvider).save(patient);
 
                     context.go('/doctor');
-                    print('PATIENT SAVED: ${patient.patientName}');
                   },
 
                   child: const Text("Next"),

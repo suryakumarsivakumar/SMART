@@ -30,13 +30,34 @@ class SessionModelAdapter extends TypeAdapter<SessionModel> {
       durationSeconds: fields[7] as int,
       startTime: fields[8] as DateTime,
       endTime: fields[9] as DateTime,
+      uhid: fields[13] as String,
+      ipNumber: fields[14] as String,
+      admissionNumber: fields[15] as String,
+      ward: fields[16] as String,
+      bedNumber: fields[17] as String,
+      bedType: fields[18] as String,
+      procedureName: fields[19] as String,
+      dob: fields[20] as DateTime,
+      age: fields[21] as int,
+      gender: fields[22] as String,
+      mobileNumber: fields[23] as String,
+      hospitalName: fields[24] as String,
+      department: fields[25] as String,
+      diagnosis: fields[26] as String,
+      notes: fields[27] as String,
+      doctorHospital: fields[28] as String,
+      specialization: fields[29] as String,
+      contactNumber: fields[30] as String,
+      anesthetistName: fields[31] as String,
+      otInchargeName: fields[32] as String,
+      surgeryType: fields[33] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, SessionModel obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(34)
       ..writeByte(0)
       ..write(obj.sessionId)
       ..writeByte(1)
@@ -62,7 +83,49 @@ class SessionModelAdapter extends TypeAdapter<SessionModel> {
       ..writeByte(11)
       ..write(obj.doctorName)
       ..writeByte(12)
-      ..write(obj.deviceName);
+      ..write(obj.deviceName)
+      ..writeByte(13)
+      ..write(obj.uhid)
+      ..writeByte(14)
+      ..write(obj.ipNumber)
+      ..writeByte(15)
+      ..write(obj.admissionNumber)
+      ..writeByte(16)
+      ..write(obj.ward)
+      ..writeByte(17)
+      ..write(obj.bedNumber)
+      ..writeByte(18)
+      ..write(obj.bedType)
+      ..writeByte(19)
+      ..write(obj.procedureName)
+      ..writeByte(20)
+      ..write(obj.dob)
+      ..writeByte(21)
+      ..write(obj.age)
+      ..writeByte(22)
+      ..write(obj.gender)
+      ..writeByte(23)
+      ..write(obj.mobileNumber)
+      ..writeByte(24)
+      ..write(obj.hospitalName)
+      ..writeByte(25)
+      ..write(obj.department)
+      ..writeByte(26)
+      ..write(obj.diagnosis)
+      ..writeByte(27)
+      ..write(obj.notes)
+      ..writeByte(28)
+      ..write(obj.doctorHospital)
+      ..writeByte(29)
+      ..write(obj.specialization)
+      ..writeByte(30)
+      ..write(obj.contactNumber)
+      ..writeByte(31)
+      ..write(obj.anesthetistName)
+      ..writeByte(32)
+      ..write(obj.otInchargeName)
+      ..writeByte(33)
+      ..write(obj.surgeryType);
   }
 
   @override

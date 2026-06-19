@@ -96,14 +96,8 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
                     final session = ref.read(sessionProvider);
 
                     print(
-                      'DEVICE SCREEN PATIENT: ${session.patient?.patientName}',
-                    );
-
-                    print(
                       'DEVICE SCREEN DOCTOR: ${session.doctor?.doctorName}',
                     );
-
-                    print('DEVICE SCREEN DEVICE: $selectedDevice');
 
                     ref
                         .read(sessionProvider.notifier)

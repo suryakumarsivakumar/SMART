@@ -128,6 +128,48 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
       deviceName: session.deviceName ?? 'Unknown Device',
 
+      uhid: session.patient?.uhid ?? '',
+
+      ipNumber: session.patient?.ipNumber ?? '',
+
+      admissionNumber: session.patient?.admissionNumber ?? '',
+
+      ward: session.patient?.ward ?? '',
+
+      bedNumber: session.patient?.bedNumber ?? '',
+
+      bedType: session.patient?.bedType ?? '',
+
+      procedureName: session.patient?.procedureName ?? '',
+
+      dob: session.patient?.dob ?? DateTime.now(),
+
+      age: session.patient?.age ?? 0,
+
+      gender: session.patient?.gender ?? '',
+
+      mobileNumber: session.patient?.mobileNumber ?? '',
+
+      hospitalName: session.patient?.hospitalName ?? '',
+
+      department: session.patient?.department ?? '',
+
+      diagnosis: session.patient?.diagnosis ?? '',
+
+      notes: session.patient?.notes ?? '',
+
+      doctorHospital: session.doctor?.hospital ?? '',
+
+      specialization: session.doctor?.specialization ?? '',
+
+      contactNumber: session.doctor?.contactNumber ?? '',
+
+      anesthetistName: session.doctor?.anesthetistName ?? '',
+
+      otInchargeName: session.doctor?.otInchargeName ?? '',
+
+      surgeryType: session.doctor?.surgeryType ?? '',
+
       totalPressCount: 0,
       averageForce: 0,
       maxForce: 0,
@@ -135,11 +177,6 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       startTime: DateTime.now(),
       endTime: DateTime.now(),
     );
-
-    print('START MONITORING');
-    print('Patient = ${session.patient?.patientName}');
-    print('Doctor = ${session.doctor?.doctorName}');
-    print('Device = ${session.deviceName}');
 
     _service.startMonitoring();
 
@@ -228,20 +265,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   Future<void> stopMonitoring() async {
-    print('STOP MONITORING CALLED');
-
     _service.stopMonitoring();
 
     await _subscription?.cancel();
 
-    print('currentSession = $currentSession');
-
     if (currentSession != null) {
-      print('Saving Session...');
-      print('Patient: ${currentSession!.patientName}');
-      print('Doctor: ${currentSession!.doctorName}');
-      print('Device: ${currentSession!.deviceName}');
-
       currentSession!
         ..totalPressCount = _pressCount
         ..averageForce = (_sampleCount == 0) ? 0 : _forceSum / _sampleCount
@@ -250,11 +278,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         ..endTime = DateTime.now();
 
       await _sessionRepository.save(currentSession!);
-
-      print('SESSION SAVED');
-    } else {
-      print('currentSession is NULL');
-    }
+    } else {}
 
     state = state.copyWith(procedureEnded: true);
   }

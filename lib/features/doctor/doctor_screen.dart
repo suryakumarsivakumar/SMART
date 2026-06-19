@@ -145,7 +145,6 @@ class _DoctorScreenState extends ConsumerState<DoctorScreen> {
                     ref.read(sessionProvider.notifier).saveDoctor(doctor);
                     ref.read(doctorRepositoryProvider).save(doctor);
                     context.go('/device');
-                    print('DOCTOR SAVED: ${doctor.doctorName}');
                   },
 
                   child: const Text("Next"),

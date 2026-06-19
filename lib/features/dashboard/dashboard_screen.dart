@@ -312,6 +312,7 @@ class DashboardScreen extends ConsumerWidget {
                   final file = await pdfService.generateReport(
                     session: session,
                     totalPresses: dashboard.totalPressCount,
+                    totalSamples: dashboard.biopsySampleCount,
                     averageForce: dashboard.averageForce,
                     maximumForce: dashboard.maxForce,
                     duration: dashboard.usageDuration,
@@ -355,48 +356,34 @@ class DashboardScreen extends ConsumerWidget {
             // END PROCEDURE
             //--------------------------------
             SizedBox(
-  width: double.infinity,
+              width: double.infinity,
 
-  child: dashboard.procedureEnded
-      ? FilledButton.icon(
-          onPressed: null,
+              child: dashboard.procedureEnded
+                  ? FilledButton.icon(
+                      onPressed: null,
 
-          icon: const Icon(
-            Icons.check_circle,
-          ),
+                      icon: const Icon(Icons.check_circle),
 
-          label: const Text(
-            'Procedure Ended',
-          ),
-        )
-      : ElevatedButton.icon(
-          onPressed: () async {
-            await ref
-                .read(
-                  dashboardProvider.notifier,
-                )
-                .stopMonitoring();
+                      label: const Text('Procedure Ended'),
+                    )
+                  : ElevatedButton.icon(
+                      onPressed: () async {
+                        await ref
+                            .read(dashboardProvider.notifier)
+                            .stopMonitoring();
 
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Procedure Saved',
-                  ),
-                ),
-              );
-            }
-          },
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Procedure Saved')),
+                          );
+                        }
+                      },
 
-          icon: const Icon(
-            Icons.stop,
-          ),
+                      icon: const Icon(Icons.stop),
 
-          label: const Text(
-            'End Procedure',
-          ),
-        ),
-),
+                      label: const Text('End Procedure'),
+                    ),
+            ),
             const SizedBox(height: 30),
           ],
         ),

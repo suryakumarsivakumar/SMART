@@ -16,6 +16,7 @@ class PdfService {
   Future<File> generateReport({
     required SessionData session,
     required int totalPresses,
+    required int totalSamples,
     required double averageForce,
     required double maximumForce,
     required Duration duration,
@@ -41,7 +42,23 @@ class PdfService {
 
           pw.Text('Patient Name: ${session.patient?.patientName ?? ""}'),
           pw.Text('Patient ID: ${session.patient?.patientId ?? ""}'),
+          pw.Text('UHID: ${session.patient?.uhid ?? ""}'),
+          pw.Text('IP Number: ${session.patient?.ipNumber ?? ""}'),
+          pw.Text(
+            'Admission Number: ${session.patient?.admissionNumber ?? ""}',
+          ),
+          pw.Text('Ward: ${session.patient?.ward ?? ""}'),
+          pw.Text('Bed Number: ${session.patient?.bedNumber ?? ""}'),
+          pw.Text('Bed Type: ${session.patient?.bedType ?? ""}'),
+          pw.Text('Procedure Name: ${session.patient?.procedureName ?? ""}'),
+          pw.Text('Age: ${session.patient?.age ?? ""}'),
+          pw.Text('DOB: ${session.patient?.dob ?? ""}'),
+          pw.Text('Gender: ${session.patient?.gender ?? ""}'),
+          pw.Text('Mobile Number: ${session.patient?.mobileNumber ?? ""}'),
+          pw.Text('Hospital Name: ${session.patient?.hospitalName ?? ""}'),
+          pw.Text('Department: ${session.patient?.department ?? ""}'),
           pw.Text('Diagnosis: ${session.patient?.diagnosis ?? ""}'),
+          pw.Text('Notes: ${session.patient?.notes ?? ""}'),
 
           pw.SizedBox(height: 20),
 
@@ -52,7 +69,13 @@ class PdfService {
 
           pw.Text('Doctor Name: ${session.doctor?.doctorName ?? ""}'),
           pw.Text('Doctor ID: ${session.doctor?.doctorId ?? ""}'),
+          pw.Text('Hospital: ${session.doctor?.hospital ?? ""}'),
           pw.Text('Department: ${session.doctor?.department ?? ""}'),
+          pw.Text('Specialization: ${session.doctor?.specialization ?? ""}'),
+          pw.Text('Contact Number: ${session.doctor?.contactNumber ?? ""}'),
+          pw.Text('Anesthetist: ${session.doctor?.anesthetistName ?? ""}'),
+          pw.Text('OT Incharge: ${session.doctor?.otInchargeName ?? ""}'),
+          pw.Text('Surgery Type: ${session.doctor?.surgeryType ?? ""}'),
 
           pw.SizedBox(height: 20),
 
@@ -66,14 +89,15 @@ class PdfService {
           pw.SizedBox(height: 20),
 
           pw.Text(
-            'PROCEDURE ANALYTICS',
+            'BIOPSY PROCEDURE ANALYTICS',
             style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
           ),
-
+          pw.Text('Total Samples Collected: $totalSamples'),
           pw.Text('Total Presses: $totalPresses'),
           pw.Text('Average Force: ${averageForce.toStringAsFixed(1)}'),
           pw.Text('Maximum Force: ${maximumForce.toStringAsFixed(1)}'),
           pw.Text('Duration: ${duration.inSeconds} sec'),
+          pw.Text('Report Generated: ${DateTime.now()}'),
         ],
       ),
     );
@@ -116,7 +140,22 @@ class PdfService {
           pw.Text('Patient Name: ${session.patientName}'),
 
           pw.Text('Patient ID: ${session.patientId}'),
-
+          pw.Text('Patient Name: ${session.patientName}'),
+          pw.Text('Patient ID: ${session.patientId}'),
+          pw.Text('UHID: ${session.uhid}'),
+          pw.Text('IP Number: ${session.ipNumber}'),
+          pw.Text('Admission Number: ${session.admissionNumber}'),
+          pw.Text('DOB: ${session.dob}'),
+          pw.Text('Age: ${session.age}'),
+          pw.Text('Gender: ${session.gender}'),
+          pw.Text('Ward: ${session.ward}'),
+          pw.Text('Bed Number: ${session.bedNumber}'),
+          pw.Text('Bed Type: ${session.bedType}'),
+          pw.Text('Procedure Name: ${session.procedureName}'),
+          pw.Text('Hospital Name: ${session.hospitalName}'),
+          pw.Text('Department: ${session.department}'),
+          pw.Text('Diagnosis: ${session.diagnosis}'),
+          pw.Text('Notes: ${session.notes}'),
           pw.SizedBox(height: 10),
 
           pw.Text(
@@ -127,7 +166,14 @@ class PdfService {
           pw.Text('Doctor Name: ${session.doctorName}'),
 
           pw.Text('Doctor ID: ${session.doctorId}'),
-
+          pw.Text('Doctor Name: ${session.doctorName}'),
+          pw.Text('Doctor ID: ${session.doctorId}'),
+          pw.Text('Hospital: ${session.doctorHospital}'),
+          pw.Text('Specialization: ${session.specialization}'),
+          pw.Text('Contact Number: ${session.contactNumber}'),
+          pw.Text('Anesthetist: ${session.anesthetistName}'),
+          pw.Text('OT Incharge: ${session.otInchargeName}'),
+          pw.Text('Surgery Type: ${session.surgeryType}'),
           pw.SizedBox(height: 10),
 
           pw.Text(
@@ -138,7 +184,11 @@ class PdfService {
           pw.Text('Device Name: ${session.deviceName}'),
 
           pw.Text('Device ID: ${session.deviceId}'),
-
+          pw.Text('Total Samples Collected: ${session.totalPressCount}'),
+          pw.Text('Press Count: ${session.totalPressCount}'),
+          pw.Text('Average Force: ${session.averageForce.toStringAsFixed(1)}'),
+          pw.Text('Maximum Force: ${session.maxForce.toStringAsFixed(1)}'),
+          pw.Text('Duration: ${session.durationSeconds}s'),
           pw.Divider(),
 
           pw.Text(
