@@ -20,99 +20,104 @@ class SessionModel extends HiveObject {
   int totalPressCount;
 
   @HiveField(5)
-  double averageForce;
+  int totalSamples;
 
   @HiveField(6)
-  double maxForce;
+  double averageForce;
 
   @HiveField(7)
-  int durationSeconds;
+  double maxForce;
 
   @HiveField(8)
-  DateTime startTime;
+  int durationSeconds;
 
   @HiveField(9)
-  DateTime endTime;
+  DateTime startTime;
 
   @HiveField(10)
-  String patientName;
+  DateTime endTime;
 
   @HiveField(11)
-  String doctorName;
+  String patientName;
 
   @HiveField(12)
+  String doctorName;
+
+  @HiveField(13)
   String deviceName;
 
   // ===================================================
   // PATIENT DETAILS
   // ===================================================
 
-  @HiveField(13)
+  @HiveField(14)
   String uhid;
 
-  @HiveField(14)
+  @HiveField(15)
   String ipNumber;
 
-  @HiveField(15)
+  @HiveField(16)
   String admissionNumber;
 
-  @HiveField(16)
+  @HiveField(17)
   String ward;
 
-  @HiveField(17)
+  @HiveField(18)
   String bedNumber;
 
-  @HiveField(18)
+  @HiveField(19)
   String bedType;
 
-  @HiveField(19)
+  @HiveField(20)
   String procedureName;
 
-  @HiveField(20)
+  @HiveField(21)
   DateTime dob;
 
-  @HiveField(21)
+  @HiveField(22)
   int age;
 
-  @HiveField(22)
+  @HiveField(23)
   String gender;
 
-  @HiveField(23)
+  @HiveField(24)
   String mobileNumber;
 
-  @HiveField(24)
+  @HiveField(25)
   String hospitalName;
 
-  @HiveField(25)
+  @HiveField(26)
   String department;
 
-  @HiveField(26)
+  @HiveField(27)
   String diagnosis;
 
-  @HiveField(27)
+  @HiveField(28)
   String notes;
 
   // ===================================================
   // DOCTOR DETAILS
   // ===================================================
 
-  @HiveField(28)
+  @HiveField(29)
   String doctorHospital;
 
-  @HiveField(29)
+  @HiveField(30)
   String specialization;
 
-  @HiveField(30)
+  @HiveField(31)
   String contactNumber;
 
-  @HiveField(31)
+  @HiveField(32)
   String anesthetistName;
 
-  @HiveField(32)
+  @HiveField(33)
   String otInchargeName;
 
-  @HiveField(33)
+  @HiveField(34)
   String surgeryType;
+  @HiveField(35)
+  List<String> timelineEvents;
 
   SessionModel({
     required this.sessionId,
@@ -125,6 +130,7 @@ class SessionModel extends HiveObject {
     required this.deviceName,
 
     required this.totalPressCount,
+    required this.totalSamples,
     required this.averageForce,
     required this.maxForce,
     required this.durationSeconds,
@@ -155,5 +161,6 @@ class SessionModel extends HiveObject {
     required this.anesthetistName,
     required this.otInchargeName,
     required this.surgeryType,
+    required this.timelineEvents,
   });
 }

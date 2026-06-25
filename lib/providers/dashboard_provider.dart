@@ -1,17 +1,16 @@
 import 'dart:async';
-
+import '../../../core/enums/biopsy_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
-
-import '../core/enums/biopsy_state.dart';
-
+import 'package:intl/intl.dart';
 import '../models/device_data_model.dart';
 import '../models/session_model.dart';
 import '../models/force_data_model.dart';
 import '../models/timeline_event_model.dart';
 import '../models/graph_point.dart';
-
+import '../features/device/biopsy/biopsy_processor.dart';
+import '../features/device/biopsy/biopsy_result.dart';
 import '../repositories/session_repository.dart';
 import '../repositories/analytics_repository.dart';
 
@@ -28,7 +27,7 @@ final dashboardProvider =
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
   DashboardNotifier(this._service, this.ref) : super(DashboardState.initial());
-
+  final DateFormat _dateTimeFormat = DateFormat('dd-MM-yyyy HH:mm:ss');
   final Esp32Service _service;
   final Ref ref;
 
@@ -43,9 +42,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   double _graphX = 0;
 
-  BiopsyState biopsyState = BiopsyState.free;
-
-  int biopsySampleCount = 0;
+  final BiopsyProcessor _biopsyProcessor = BiopsyProcessor();
 
   bool _previousClick = false;
 
@@ -95,9 +92,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
     _lastState = null;
 
-    biopsyState = BiopsyState.free;
-
-    biopsySampleCount = 0;
+    _biopsyProcessor.reset();
 
     _previousClick = false;
 
@@ -110,6 +105,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     state = DashboardState.initial();
 
     _startTime = DateTime.now();
+    ref.read(sessionProvider.notifier).startProcedure();
 
     final session = ref.read(sessionProvider);
 
@@ -171,11 +167,13 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       surgeryType: session.doctor?.surgeryType ?? '',
 
       totalPressCount: 0,
+      totalSamples: 0,
       averageForce: 0,
       maxForce: 0,
       durationSeconds: 0,
       startTime: DateTime.now(),
       endTime: DateTime.now(),
+      timelineEvents: [],
     );
 
     _service.startMonitoring();
@@ -185,37 +183,28 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     return true;
   }
 
-  void _handleBiopsyClick() {
-    switch (biopsyState) {
-      case BiopsyState.free:
-        biopsyState = BiopsyState.armed;
-        break;
+  void _processData(DeviceDataModel data) {
+    print('CLICK=${data.click}  VALUE=${data.value}  STATE=${data.state}');
+    if (data.click && !_previousClick) {
+      print('CLICK DETECTED');
+      _pressCount++;
 
-      case BiopsyState.armed:
-        biopsyState = BiopsyState.fired;
+      final BiopsyResult result = _biopsyProcessor.handleClick();
+      print('BIOPSY STATE=${result.state}  SAMPLES=${result.sampleCount}');
 
-        biopsySampleCount++;
-
+      if (result.state == BiopsyState.fired) {
         _firedTimer?.cancel();
 
         _firedTimer = Timer(const Duration(seconds: 5), () {
-          biopsyState = BiopsyState.free;
+          _biopsyProcessor.setFree();
 
-          state = state.copyWith(biopsyState: biopsyState);
+          state = state.copyWith(biopsyState: _biopsyProcessor.result.state);
         });
+      }
 
-        break;
-
-      case BiopsyState.fired:
-        break;
-    }
-  }
-
-  void _processData(DeviceDataModel data) {
-    if (data.click && !_previousClick) {
-      _pressCount++;
-
-      _handleBiopsyClick();
+      if (result.sampleCount > state.biopsySampleCount) {
+        ref.read(sessionProvider.notifier).recordSample(result.sampleCount);
+      }
     }
 
     _previousClick = data.click;
@@ -253,9 +242,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     final duration = DateTime.now().difference(_startTime!);
 
     state = state.copyWith(
-      biopsyState: biopsyState,
+      biopsyState: _biopsyProcessor.result.state,
       graphPoints: List.from(_graphPoints),
-      biopsySampleCount: biopsySampleCount,
+      biopsySampleCount: _biopsyProcessor.result.sampleCount,
       latestData: data,
       totalPressCount: _pressCount,
       averageForce: average,
@@ -268,14 +257,21 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     _service.stopMonitoring();
 
     await _subscription?.cancel();
+    ref.read(sessionProvider.notifier).endProcedure();
 
     if (currentSession != null) {
+      final sessionData = ref.read(sessionProvider);
+
       currentSession!
         ..totalPressCount = _pressCount
+        ..totalSamples = state.biopsySampleCount
         ..averageForce = (_sampleCount == 0) ? 0 : _forceSum / _sampleCount
         ..maxForce = _maxForce
         ..durationSeconds = DateTime.now().difference(_startTime!).inSeconds
-        ..endTime = DateTime.now();
+        ..endTime = DateTime.now()
+        ..timelineEvents = sessionData.timeline
+            .map((e) => '${_dateTimeFormat.format(e.timestamp)} - ${e.event}')
+            .toList();
 
       await _sessionRepository.save(currentSession!);
     } else {}

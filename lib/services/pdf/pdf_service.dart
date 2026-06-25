@@ -1,17 +1,18 @@
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 
-import '../../providers/session_provider.dart';
+import '../../models/pdf_report_data.dart';
 import '../../models/session_model.dart';
+import '../../providers/session_provider.dart';
+import 'package:intl/intl.dart';
+import 'pdf_builder.dart';
 
 class PdfService {
-  // ===================================================
-  // LIVE PROCEDURE PDF
-  // ===================================================
+  final DateFormat _dateTimeFormat = DateFormat('dd-MM-yyyy HH:mm:ss');
+  //=====================================================
+  // DASHBOARD REPORT
+  //=====================================================
 
   Future<File> generateReport({
     required SessionData session,
@@ -21,207 +22,159 @@ class PdfService {
     required double maximumForce,
     required Duration duration,
   }) async {
-    final pdf = pw.Document();
+    final report = PdfReportData(
+      //-----------------------------
+      // Patient
+      //-----------------------------
+      patientName: session.patient?.patientName ?? '',
+      patientId: session.patient?.patientId ?? '',
+      uhid: session.patient?.uhid ?? '',
+      ipNumber: session.patient?.ipNumber ?? '',
+      admissionNumber: session.patient?.admissionNumber ?? '',
+      ward: session.patient?.ward ?? '',
+      bedNumber: session.patient?.bedNumber ?? '',
+      bedType: session.patient?.bedType ?? '',
+      procedureName: session.patient?.procedureName ?? '',
+      dob: session.patient?.dob,
+      age: session.patient?.age ?? 0,
+      gender: session.patient?.gender ?? '',
+      mobileNumber: session.patient?.mobileNumber ?? '',
+      hospitalName: session.patient?.hospitalName ?? '',
+      department: session.patient?.department ?? '',
+      diagnosis: session.patient?.diagnosis ?? '',
+      notes: session.patient?.notes ?? '',
 
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        build: (context) => [
-          pw.Header(level: 0, child: pw.Text('SMART Report')),
+      //-----------------------------
+      // Doctor
+      //-----------------------------
+      doctorName: session.doctor?.doctorName ?? '',
+      doctorId: session.doctor?.doctorId ?? '',
+      doctorHospital: session.doctor?.hospital ?? '',
+      doctorDepartment: session.doctor?.department ?? '',
+      specialization: session.doctor?.specialization ?? '',
+      contactNumber: session.doctor?.contactNumber ?? '',
+      anesthetistName: session.doctor?.anesthetistName ?? '',
+      otInchargeName: session.doctor?.otInchargeName ?? '',
+      surgeryType: session.doctor?.surgeryType ?? '',
 
-          pw.SizedBox(height: 20),
+      //-----------------------------
+      // Device
+      //-----------------------------
+      deviceName: session.deviceName ?? '',
+      deviceId: session.deviceName ?? '',
 
-          pw.Text('Surgical Monitoring and Analytics for Real-Time Tracking'),
+      //-----------------------------
+      // Analytics
+      //-----------------------------
+      totalSamples: totalSamples,
+      totalPresses: totalPresses,
+      averageForce: averageForce,
+      maximumForce: maximumForce,
+      duration: duration,
 
-          pw.Divider(),
+      //-----------------------------
+      // Timing
+      //-----------------------------
+      startTime: session.startTime,
+      endTime: session.endTime,
+      reportGenerated: DateTime.now(),
 
-          pw.Text(
-            'PATIENT INFORMATION',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
-
-          pw.Text('Patient Name: ${session.patient?.patientName ?? ""}'),
-          pw.Text('Patient ID: ${session.patient?.patientId ?? ""}'),
-          pw.Text('UHID: ${session.patient?.uhid ?? ""}'),
-          pw.Text('IP Number: ${session.patient?.ipNumber ?? ""}'),
-          pw.Text(
-            'Admission Number: ${session.patient?.admissionNumber ?? ""}',
-          ),
-          pw.Text('Ward: ${session.patient?.ward ?? ""}'),
-          pw.Text('Bed Number: ${session.patient?.bedNumber ?? ""}'),
-          pw.Text('Bed Type: ${session.patient?.bedType ?? ""}'),
-          pw.Text('Procedure Name: ${session.patient?.procedureName ?? ""}'),
-          pw.Text('Age: ${session.patient?.age ?? ""}'),
-          pw.Text('DOB: ${session.patient?.dob ?? ""}'),
-          pw.Text('Gender: ${session.patient?.gender ?? ""}'),
-          pw.Text('Mobile Number: ${session.patient?.mobileNumber ?? ""}'),
-          pw.Text('Hospital Name: ${session.patient?.hospitalName ?? ""}'),
-          pw.Text('Department: ${session.patient?.department ?? ""}'),
-          pw.Text('Diagnosis: ${session.patient?.diagnosis ?? ""}'),
-          pw.Text('Notes: ${session.patient?.notes ?? ""}'),
-
-          pw.SizedBox(height: 20),
-
-          pw.Text(
-            'DOCTOR INFORMATION',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
-
-          pw.Text('Doctor Name: ${session.doctor?.doctorName ?? ""}'),
-          pw.Text('Doctor ID: ${session.doctor?.doctorId ?? ""}'),
-          pw.Text('Hospital: ${session.doctor?.hospital ?? ""}'),
-          pw.Text('Department: ${session.doctor?.department ?? ""}'),
-          pw.Text('Specialization: ${session.doctor?.specialization ?? ""}'),
-          pw.Text('Contact Number: ${session.doctor?.contactNumber ?? ""}'),
-          pw.Text('Anesthetist: ${session.doctor?.anesthetistName ?? ""}'),
-          pw.Text('OT Incharge: ${session.doctor?.otInchargeName ?? ""}'),
-          pw.Text('Surgery Type: ${session.doctor?.surgeryType ?? ""}'),
-
-          pw.SizedBox(height: 20),
-
-          pw.Text(
-            'DEVICE',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
-
-          pw.Text(session.deviceName ?? ''),
-
-          pw.SizedBox(height: 20),
-
-          pw.Text(
-            'BIOPSY PROCEDURE ANALYTICS',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
-          pw.Text('Total Samples Collected: $totalSamples'),
-          pw.Text('Total Presses: $totalPresses'),
-          pw.Text('Average Force: ${averageForce.toStringAsFixed(1)}'),
-          pw.Text('Maximum Force: ${maximumForce.toStringAsFixed(1)}'),
-          pw.Text('Duration: ${duration.inSeconds} sec'),
-          pw.Text('Report Generated: ${DateTime.now()}'),
-        ],
-      ),
+      //-----------------------------
+      // Timeline
+      //-----------------------------
+      timeline: session.timeline
+          .map((e) => '${_dateTimeFormat.format(e.timestamp)} - ${e.event}')
+          .toList(),
     );
 
-    final bytes = await pdf.save();
-
-    final dir = await getApplicationDocumentsDirectory();
-
-    final file = File(
-      '${dir.path}/SMART_Report_${DateTime.now().millisecondsSinceEpoch}.pdf',
-    );
-
-    await file.writeAsBytes(bytes);
-
-    await OpenFilex.open(file.path);
-
-    return file;
+    return _saveAndOpen(report);
   }
 
-  // ===================================================
-  // HISTORY PROCEDURE PDF
-  // ===================================================
+  //=====================================================
+  // HISTORY REPORT
+  //=====================================================
 
   Future<File> generateSessionReport(SessionModel session) async {
-    final pdf = pw.Document();
+    final report = PdfReportData(
+      //-----------------------------
+      // Patient
+      //-----------------------------
+      patientName: session.patientName,
+      patientId: session.patientId,
+      uhid: session.uhid,
+      ipNumber: session.ipNumber,
+      admissionNumber: session.admissionNumber,
+      ward: session.ward,
+      bedNumber: session.bedNumber,
+      bedType: session.bedType,
+      procedureName: session.procedureName,
+      dob: session.dob,
+      age: session.age,
+      gender: session.gender,
+      mobileNumber: session.mobileNumber,
+      hospitalName: session.hospitalName,
+      department: session.department,
+      diagnosis: session.diagnosis,
+      notes: session.notes,
 
-    pdf.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        build: (context) => [
-          pw.Header(level: 0, child: pw.Text('SMART Procedure Report')),
+      //-----------------------------
+      // Doctor
+      //-----------------------------
+      doctorName: session.doctorName,
+      doctorId: session.doctorId,
+      doctorHospital: session.doctorHospital,
+      doctorDepartment: session.department,
+      specialization: session.specialization,
+      contactNumber: session.contactNumber,
+      anesthetistName: session.anesthetistName,
+      otInchargeName: session.otInchargeName,
+      surgeryType: session.surgeryType,
 
-          pw.SizedBox(height: 20),
+      //-----------------------------
+      // Device
+      //-----------------------------
+      deviceName: session.deviceName,
+      deviceId: session.deviceId,
 
-          pw.Text(
-            'PATIENT INFORMATION',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
+      //-----------------------------
+      // Analytics
+      //-----------------------------
+      totalSamples: session.totalSamples,
+      totalPresses: session.totalPressCount,
+      averageForce: session.averageForce,
+      maximumForce: session.maxForce,
+      duration: Duration(seconds: session.durationSeconds),
 
-          pw.Text('Patient Name: ${session.patientName}'),
+      //-----------------------------
+      // Timing
+      //-----------------------------
+      startTime: session.startTime,
+      endTime: session.endTime,
+      reportGenerated: DateTime.now(),
 
-          pw.Text('Patient ID: ${session.patientId}'),
-          pw.Text('Patient Name: ${session.patientName}'),
-          pw.Text('Patient ID: ${session.patientId}'),
-          pw.Text('UHID: ${session.uhid}'),
-          pw.Text('IP Number: ${session.ipNumber}'),
-          pw.Text('Admission Number: ${session.admissionNumber}'),
-          pw.Text('DOB: ${session.dob}'),
-          pw.Text('Age: ${session.age}'),
-          pw.Text('Gender: ${session.gender}'),
-          pw.Text('Ward: ${session.ward}'),
-          pw.Text('Bed Number: ${session.bedNumber}'),
-          pw.Text('Bed Type: ${session.bedType}'),
-          pw.Text('Procedure Name: ${session.procedureName}'),
-          pw.Text('Hospital Name: ${session.hospitalName}'),
-          pw.Text('Department: ${session.department}'),
-          pw.Text('Diagnosis: ${session.diagnosis}'),
-          pw.Text('Notes: ${session.notes}'),
-          pw.SizedBox(height: 10),
-
-          pw.Text(
-            'DOCTOR INFORMATION',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
-
-          pw.Text('Doctor Name: ${session.doctorName}'),
-
-          pw.Text('Doctor ID: ${session.doctorId}'),
-          pw.Text('Doctor Name: ${session.doctorName}'),
-          pw.Text('Doctor ID: ${session.doctorId}'),
-          pw.Text('Hospital: ${session.doctorHospital}'),
-          pw.Text('Specialization: ${session.specialization}'),
-          pw.Text('Contact Number: ${session.contactNumber}'),
-          pw.Text('Anesthetist: ${session.anesthetistName}'),
-          pw.Text('OT Incharge: ${session.otInchargeName}'),
-          pw.Text('Surgery Type: ${session.surgeryType}'),
-          pw.SizedBox(height: 10),
-
-          pw.Text(
-            'DEVICE INFORMATION',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
-
-          pw.Text('Device Name: ${session.deviceName}'),
-
-          pw.Text('Device ID: ${session.deviceId}'),
-          pw.Text('Total Samples Collected: ${session.totalPressCount}'),
-          pw.Text('Press Count: ${session.totalPressCount}'),
-          pw.Text('Average Force: ${session.averageForce.toStringAsFixed(1)}'),
-          pw.Text('Maximum Force: ${session.maxForce.toStringAsFixed(1)}'),
-          pw.Text('Duration: ${session.durationSeconds}s'),
-          pw.Divider(),
-
-          pw.Text(
-            'PROCEDURE ANALYTICS',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          ),
-
-          pw.Text('Press Count: ${session.totalPressCount}'),
-
-          pw.Text('Average Force: ${session.averageForce.toStringAsFixed(1)}'),
-
-          pw.Text('Maximum Force: ${session.maxForce.toStringAsFixed(1)}'),
-
-          pw.Text('Duration: ${session.durationSeconds}s'),
-
-          pw.SizedBox(height: 10),
-
-          pw.Text('Start Time: ${session.startTime}'),
-
-          pw.Text('End Time: ${session.endTime}'),
-
-          pw.SizedBox(height: 20),
-
-          pw.Text('Generated by SMART Surgical Monitoring System'),
-        ],
-      ),
+      //-----------------------------
+      // Timeline
+      //-----------------------------
+      timeline: session.timelineEvents,
     );
+
+    return _saveAndOpen(report, fileName: session.sessionId);
+  }
+
+  //=====================================================
+  // SAVE + OPEN
+  //=====================================================
+
+  Future<File> _saveAndOpen(PdfReportData report, {String? fileName}) async {
+    final pdf = PdfBuilder.build(report);
 
     final bytes = await pdf.save();
 
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = Directory('/storage/emulated/0/Download');
 
-    final file = File('${dir.path}/${session.sessionId}.pdf');
+    final file = File(
+      '${dir.path}/${fileName ?? "SMART_Report_${DateTime.now().millisecondsSinceEpoch}"}.pdf',
+    );
 
     await file.writeAsBytes(bytes);
 

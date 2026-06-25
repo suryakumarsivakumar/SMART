@@ -188,6 +188,49 @@ class ProcedureDetailsScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+
+            //--------------------------------
+            // TIMELINE
+            //--------------------------------
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    const ListTile(
+                      leading: Icon(Icons.timeline),
+                      title: Text(
+                        'Procedure Timeline',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+
+                    if (session.timelineEvents.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('No Timeline Events Recorded'),
+                      ),
+
+                    ...session.timelineEvents.map(
+                      (event) => Card(
+                        elevation: 0,
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.fiber_manual_record,
+                            size: 16,
+                          ),
+                          title: Text(event),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
