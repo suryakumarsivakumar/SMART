@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../devices/registry/device_type.dart';
 import '../../providers/session_provider.dart';
 import '../../providers/dashboard_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DeviceSelectionScreen extends ConsumerStatefulWidget {
   const DeviceSelectionScreen({super.key});
@@ -27,7 +28,7 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
     "Scissors": DeviceType.scissors,
     "Clip Applier": DeviceType.clipApplier,
   };
-  Widget buildDeviceCard(String title, IconData icon) {
+  Widget buildDeviceCard(String title, String imagePath) {
     final selected = selectedDevice == title;
 
     return GestureDetector(
@@ -50,7 +51,11 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 40),
+            SizedBox(
+              width: 52,
+              height: 52,
+              child: SvgPicture.asset(imagePath, fit: BoxFit.contain),
+            ),
 
             const SizedBox(width: 20),
 
@@ -88,26 +93,55 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              buildDeviceCard("Biopsy Device", Icons.medical_services),
+              buildDeviceCard(
+                "Biopsy Device",
+                "assets/device_images/biopsy_device.svg",
+              ),
 
-              buildDeviceCard("Bowel Grasper", Icons.pan_tool_alt),
+              buildDeviceCard(
+                "Bowel Grasper",
+                "assets/device_images/biopsy_device.svg",
+              ),
 
-              buildDeviceCard("Dissector", Icons.content_cut),
+              buildDeviceCard(
+                "Dissector",
+                "assets/device_images/biopsy_device.svg",
+              ),
 
-              buildDeviceCard("Trocar", Icons.adjust),
+              buildDeviceCard(
+                "Trocar",
+                "assets/device_images/biopsy_device.svg",
+              ),
 
-              buildDeviceCard("Surgical Stapler", Icons.construction),
+              buildDeviceCard(
+                "Surgical Stapler",
+                "assets/device_images/surgical_stapler.svg",
+              ),
 
-              buildDeviceCard("Forceps", Icons.build),
+              buildDeviceCard(
+                "Forceps",
+                "assets/device_images/biopsy_device.svg",
+              ),
 
-              buildDeviceCard("Needle Holder", Icons.architecture),
+              buildDeviceCard(
+                "Needle Holder",
+                "assets/device_images/biopsy_device.svg",
+              ),
 
-              buildDeviceCard("Suction", Icons.air),
+              buildDeviceCard(
+                "Suction",
+                "assets/device_images/biopsy_device.svg",
+              ),
 
-              buildDeviceCard("Scissors", Icons.content_cut),
+              buildDeviceCard(
+                "Scissors",
+                "assets/device_images/biopsy_device.svg",
+              ),
 
-              buildDeviceCard("Clip Applier", Icons.link),
-
+              buildDeviceCard(
+                "Clip Applier",
+                "assets/device_images/biopsy_device.svg",
+              ),
               const SizedBox(height: 40),
 
               SizedBox(

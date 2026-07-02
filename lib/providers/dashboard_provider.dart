@@ -1,5 +1,4 @@
 import 'dart:async';
-import '../../../core/enums/biopsy_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -73,13 +72,6 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   int _sampleCount = 0;
 
   DateTime? _startTime;
-
-  BiopsyState _parseBiopsyState(String state) {
-    return BiopsyState.values.firstWhere(
-      (e) => e.name == state,
-      orElse: () => BiopsyState.free,
-    );
-  }
 
   // ===================================================
   // CONNECTION TEST ONLY
@@ -234,16 +226,15 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         'COUNT=${result.primaryCount}',
       );
 
-      if (_parseBiopsyState(result.state) == BiopsyState.fired) {
+      if (result.state.toUpperCase() == "FIRED") {
         _firedTimer?.cancel();
 
         _firedTimer = Timer(const Duration(seconds: 5), () {
           _deviceManager.currentPlugin.setFree();
 
           state = state.copyWith(
-            biopsyState: _parseBiopsyState(
-              _deviceManager.currentPlugin.result.state,
-            ),
+            currentState: _deviceManager.currentPlugin.result.state
+                .toUpperCase(),
           );
         });
       }
@@ -288,7 +279,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     final duration = DateTime.now().difference(_startTime!);
 
     state = state.copyWith(
-      biopsyState: _parseBiopsyState(_deviceManager.currentPlugin.result.state),
+      currentState: _deviceManager.currentPlugin.result.state.toUpperCase(),
       graphPoints: List.from(_graphPoints),
       biopsySampleCount: _deviceManager.currentPlugin.result.primaryCount,
       latestData: data,

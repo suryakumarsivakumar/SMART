@@ -19,7 +19,7 @@ class StaplerDevice implements SurgicalDevice {
     final result = _processor.handleClick();
 
     return DeviceResult(
-      state: result.state.name,
+      state: result.state,
       primaryCount: result.fireCount,
       primaryLabel: 'Firings',
     );
@@ -35,7 +35,7 @@ class StaplerDevice implements SurgicalDevice {
     final result = _processor.result;
 
     return DeviceResult(
-      state: result.state.name,
+      state: result.state,
       primaryCount: result.fireCount,
       primaryLabel: 'Firings',
     );
@@ -60,7 +60,7 @@ class StaplerDevice implements SurgicalDevice {
   @override
   Map<String, dynamic> get analytics => {
     'fireCount': _processor.result.fireCount,
-    'state': _processor.result.state.name,
+    'state': _processor.result.state,
   };
 
   @override
@@ -78,5 +78,5 @@ class StaplerDevice implements SurgicalDevice {
   String get primaryMetricLabel => 'Firings';
 
   @override
-  String get stateLabel => _processor.result.state.name.toUpperCase();
+  String get stateLabel => _processor.result.state.toUpperCase();
 }

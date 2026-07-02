@@ -1,1 +1,1 @@
-enum StaplerState { idle, firing, fired }
+enum StaplerState { idle, fired }

@@ -7,7 +7,7 @@ class StaplerProcessor {
   int _fireCount = 0;
 
   StaplerResult get result =>
-      StaplerResult(state: _state, fireCount: _fireCount);
+      StaplerResult(state: _state.name, fireCount: _fireCount);
 
   void reset() {
     _state = StaplerState.idle;
@@ -15,19 +15,9 @@ class StaplerProcessor {
   }
 
   StaplerResult handleClick() {
-    switch (_state) {
-      case StaplerState.idle:
-        _state = StaplerState.firing;
-        break;
+    _fireCount++;
 
-      case StaplerState.firing:
-        _state = StaplerState.fired;
-        _fireCount++;
-        break;
-
-      case StaplerState.fired:
-        break;
-    }
+    _state = StaplerState.fired;
 
     return result;
   }

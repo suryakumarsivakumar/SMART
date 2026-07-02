@@ -1,5 +1,4 @@
 import '../models/device_data_model.dart';
-import '../core/enums/biopsy_state.dart';
 import '../models/graph_point.dart';
 import '../devices/registry/device_type.dart';
 
@@ -15,7 +14,7 @@ class DashboardState {
   final List<GraphPoint> graphPoints;
 
   final Duration usageDuration;
-  final BiopsyState biopsyState;
+  final String currentState;
 
   final int biopsySampleCount;
   final bool procedureEnded;
@@ -31,7 +30,7 @@ class DashboardState {
     required this.averageForce,
     required this.maxForce,
     required this.usageDuration,
-    required this.biopsyState,
+    required this.currentState,
     required this.biopsySampleCount,
     required this.selectedDevice,
     required this.selectedDeviceName,
@@ -42,7 +41,7 @@ class DashboardState {
     return const DashboardState(
       procedureEnded: false,
       graphPoints: [],
-      biopsyState: BiopsyState.free,
+      currentState: 'IDLE',
       biopsySampleCount: 0,
       latestData: null,
       totalPressCount: 0,
@@ -58,7 +57,7 @@ class DashboardState {
   DashboardState copyWith({
     bool? procedureEnded,
     List<GraphPoint>? graphPoints,
-    BiopsyState? biopsyState,
+    String? currentState,
     int? biopsySampleCount,
     DeviceDataModel? latestData,
     int? totalPressCount,
@@ -72,8 +71,7 @@ class DashboardState {
     return DashboardState(
       procedureEnded: procedureEnded ?? this.procedureEnded,
       graphPoints: graphPoints ?? this.graphPoints,
-      biopsyState: biopsyState ?? this.biopsyState,
-
+      currentState: currentState ?? this.currentState,
       biopsySampleCount: biopsySampleCount ?? this.biopsySampleCount,
       latestData: latestData ?? this.latestData,
       totalPressCount: totalPressCount ?? this.totalPressCount,

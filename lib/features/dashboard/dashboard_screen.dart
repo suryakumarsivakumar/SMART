@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../devices/registry/device_type.dart';
-import '../../core/enums/biopsy_state.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/pdf_provider.dart';
 import '../../providers/session_provider.dart';
 import 'widgets/live_force_graph.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -21,22 +21,25 @@ class DashboardScreen extends ConsumerWidget {
 
     const int batteryLevel = 95;
 
-    Color stateColor;
+    final String state = dashboard.currentState.toUpperCase();
 
-    switch (dashboard.biopsyState) {
-      case BiopsyState.free:
+    Color stateColor = Colors.blue;
+
+    switch (state) {
+      case 'FREE':
+      case 'IDLE':
         stateColor = Colors.green;
         break;
 
-      case BiopsyState.armed:
+      case 'ARMED':
         stateColor = Colors.orange;
         break;
 
-      case BiopsyState.fired:
+      case 'FIRING':
+      case 'FIRED':
         stateColor = Colors.red;
         break;
     }
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -101,9 +104,9 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 20),
 
                     Icon(
-                      dashboard.biopsyState == BiopsyState.free
+                      state == 'FREE' || state == 'IDLE'
                           ? Icons.lock_open
-                          : dashboard.biopsyState == BiopsyState.armed
+                          : state == 'ARMED'
                           ? Icons.security
                           : Icons.flash_on,
                       size: 80,
@@ -113,7 +116,7 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 15),
 
                     Text(
-                      dashboard.biopsyState.name.toUpperCase(),
+                      dashboard.currentState.toUpperCase(),
                       style: TextStyle(
                         fontSize: 42,
                         fontWeight: FontWeight.bold,
@@ -139,33 +142,43 @@ class DashboardScreen extends ConsumerWidget {
 
                       child: Column(
                         children: [
-                          Icon(
-                            dashboard.selectedDevice == DeviceType.biopsyGun
-                                ? Icons.science
-                                : dashboard.selectedDevice ==
-                                      DeviceType.bowelGrasper
-                                ? Icons.pan_tool_alt
-                                : dashboard.selectedDevice == DeviceType.trocar
-                                ? Icons.adjust
-                                : dashboard.selectedDevice == DeviceType.stapler
-                                ? Icons.construction
-                                : dashboard.selectedDevice == DeviceType.forceps
-                                ? Icons.build
-                                : dashboard.selectedDevice ==
-                                      DeviceType.needleHolder
-                                ? Icons.architecture
-                                : dashboard.selectedDevice == DeviceType.suction
-                                ? Icons.air
-                                : dashboard.selectedDevice ==
-                                      DeviceType.scissors
-                                ? Icons.content_cut
-                                : dashboard.selectedDevice ==
-                                      DeviceType.clipApplier
-                                ? Icons.link
-                                : Icons.medical_services,
-                            size: 40,
+                          SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: SvgPicture.asset(
+                              dashboard.selectedDevice == DeviceType.biopsyGun
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.bowelGrasper
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.dissector
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.trocar
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.stapler
+                                  ? "assets/device_images/surgical_stapler.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.forceps
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.needleHolder
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.suction
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.scissors
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : dashboard.selectedDevice ==
+                                        DeviceType.clipApplier
+                                  ? "assets/device_images/biopsy_device.svg"
+                                  : "assets/device_images/biopsy_device.svg",
+                              fit: BoxFit.contain,
+                            ),
                           ),
-
                           const SizedBox(height: 10),
 
                           Text(
@@ -347,26 +360,35 @@ class DashboardScreen extends ConsumerWidget {
                   ),
 
                   ListTile(
-                    leading: Icon(
-                      dashboard.selectedDevice == DeviceType.biopsyGun
-                          ? Icons.science
-                          : dashboard.selectedDevice == DeviceType.bowelGrasper
-                          ? Icons.pan_tool_alt
-                          : dashboard.selectedDevice == DeviceType.trocar
-                          ? Icons.adjust
-                          : dashboard.selectedDevice == DeviceType.stapler
-                          ? Icons.construction
-                          : dashboard.selectedDevice == DeviceType.forceps
-                          ? Icons.build
-                          : dashboard.selectedDevice == DeviceType.needleHolder
-                          ? Icons.architecture
-                          : dashboard.selectedDevice == DeviceType.suction
-                          ? Icons.air
-                          : dashboard.selectedDevice == DeviceType.scissors
-                          ? Icons.content_cut
-                          : dashboard.selectedDevice == DeviceType.clipApplier
-                          ? Icons.link
-                          : Icons.help_outline,
+                    leading: SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: SvgPicture.asset(
+                        dashboard.selectedDevice == DeviceType.biopsyGun
+                            ? "assets/device_images/biopsy_device.svg"
+                            : dashboard.selectedDevice ==
+                                  DeviceType.bowelGrasper
+                            ? "assets/device_images/biopsy_device.svg"
+                            : dashboard.selectedDevice == DeviceType.dissector
+                            ? "assets/device_images/biopsy_device.svg"
+                            : dashboard.selectedDevice == DeviceType.trocar
+                            ? "assets/device_images/biopsy_device.svg"
+                            : dashboard.selectedDevice == DeviceType.stapler
+                            ? "assets/device_images/surgical_stapler.svg"
+                            : dashboard.selectedDevice == DeviceType.forceps
+                            ? "assets/device_images/biopsy_device.svg"
+                            : dashboard.selectedDevice ==
+                                  DeviceType.needleHolder
+                            ? "assets/device_images/biopsy_device.svg"
+                            : dashboard.selectedDevice == DeviceType.suction
+                            ? "assets/device_images/biopsy_device.svg"
+                            : dashboard.selectedDevice == DeviceType.scissors
+                            ? "assets/device_images/biopsy_device.svg"
+                            : dashboard.selectedDevice == DeviceType.clipApplier
+                            ? "assets/device_images/biopsy_device.svg"
+                            : "assets/device_images/biopsy_device.svg",
+                        fit: BoxFit.contain,
+                      ),
                     ),
                     title: const Text("Selected Device"),
                     subtitle: Text(
