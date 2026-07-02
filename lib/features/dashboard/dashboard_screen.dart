@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../devices/registry/device_type.dart';
 import '../../core/enums/biopsy_state.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/pdf_provider.dart';
@@ -45,7 +45,7 @@ class DashboardScreen extends ConsumerWidget {
             context.go('/device');
           },
         ),
-        title: const Text('SMART Dashboard'),
+        title: Text("${dashboard.selectedDeviceName} Dashboard"),
       ),
 
       body: SingleChildScrollView(
@@ -56,15 +56,43 @@ class DashboardScreen extends ConsumerWidget {
             //--------------------------------
             // DEVICE STATE
             //--------------------------------
+            if (dashboard.selectedDevice == DeviceType.unknown)
+              Card(
+                color: Colors.orange.shade50,
+                child: const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Icon(Icons.mic, size: 48, color: Colors.orange),
+                      SizedBox(height: 12),
+                      Text(
+                        "No Device Selected",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "Waiting for voice command...",
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(24),
 
                 child: Column(
                   children: [
-                    const Text(
-                      "BIOPSY DEVICE STATE",
-                      style: TextStyle(
+                    Text(
+                      ref
+                          .read(dashboardProvider.notifier)
+                          .stateLabel
+                          .toUpperCase(),
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -111,11 +139,39 @@ class DashboardScreen extends ConsumerWidget {
 
                       child: Column(
                         children: [
-                          const Icon(Icons.science, size: 40),
+                          Icon(
+                            dashboard.selectedDevice == DeviceType.biopsyGun
+                                ? Icons.science
+                                : dashboard.selectedDevice ==
+                                      DeviceType.bowelGrasper
+                                ? Icons.pan_tool_alt
+                                : dashboard.selectedDevice == DeviceType.trocar
+                                ? Icons.adjust
+                                : dashboard.selectedDevice == DeviceType.stapler
+                                ? Icons.construction
+                                : dashboard.selectedDevice == DeviceType.forceps
+                                ? Icons.build
+                                : dashboard.selectedDevice ==
+                                      DeviceType.needleHolder
+                                ? Icons.architecture
+                                : dashboard.selectedDevice == DeviceType.suction
+                                ? Icons.air
+                                : dashboard.selectedDevice ==
+                                      DeviceType.scissors
+                                ? Icons.content_cut
+                                : dashboard.selectedDevice ==
+                                      DeviceType.clipApplier
+                                ? Icons.link
+                                : Icons.medical_services,
+                            size: 40,
+                          ),
 
                           const SizedBox(height: 10),
 
-                          const Text("Samples", style: TextStyle(fontSize: 18)),
+                          Text(
+                            dashboard.primaryMetricLabel,
+                            style: const TextStyle(fontSize: 18),
+                          ),
 
                           Text(
                             dashboard.biopsySampleCount.toString(),
@@ -291,9 +347,32 @@ class DashboardScreen extends ConsumerWidget {
                   ),
 
                   ListTile(
-                    leading: const Icon(Icons.medical_services),
+                    leading: Icon(
+                      dashboard.selectedDevice == DeviceType.biopsyGun
+                          ? Icons.science
+                          : dashboard.selectedDevice == DeviceType.bowelGrasper
+                          ? Icons.pan_tool_alt
+                          : dashboard.selectedDevice == DeviceType.trocar
+                          ? Icons.adjust
+                          : dashboard.selectedDevice == DeviceType.stapler
+                          ? Icons.construction
+                          : dashboard.selectedDevice == DeviceType.forceps
+                          ? Icons.build
+                          : dashboard.selectedDevice == DeviceType.needleHolder
+                          ? Icons.architecture
+                          : dashboard.selectedDevice == DeviceType.suction
+                          ? Icons.air
+                          : dashboard.selectedDevice == DeviceType.scissors
+                          ? Icons.content_cut
+                          : dashboard.selectedDevice == DeviceType.clipApplier
+                          ? Icons.link
+                          : Icons.help_outline,
+                    ),
                     title: const Text("Selected Device"),
-                    subtitle: Text(session.deviceName ?? "No Device"),
+                    subtitle: Text(
+                      dashboard.selectedDeviceName,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),

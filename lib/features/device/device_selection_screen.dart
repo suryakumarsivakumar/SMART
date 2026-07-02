@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../devices/registry/device_type.dart';
 import '../../providers/session_provider.dart';
 import '../../providers/dashboard_provider.dart';
 
@@ -14,8 +14,19 @@ class DeviceSelectionScreen extends ConsumerStatefulWidget {
 }
 
 class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
-  String selectedDevice = "Biopsy Device";
-
+  String? selectedDevice;
+  final Map<String, DeviceType> deviceMap = {
+    "Biopsy Device": DeviceType.biopsyGun,
+    "Bowel Grasper": DeviceType.bowelGrasper,
+    "Dissector": DeviceType.dissector,
+    "Trocar": DeviceType.trocar,
+    "Surgical Stapler": DeviceType.stapler,
+    "Forceps": DeviceType.forceps,
+    "Needle Holder": DeviceType.needleHolder,
+    "Suction": DeviceType.suction,
+    "Scissors": DeviceType.scissors,
+    "Clip Applier": DeviceType.clipApplier,
+  };
   Widget buildDeviceCard(String title, IconData icon) {
     final selected = selectedDevice == title;
 
@@ -79,13 +90,23 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
             children: [
               buildDeviceCard("Biopsy Device", Icons.medical_services),
 
-              buildDeviceCard("Needle Device", Icons.vaccines),
+              buildDeviceCard("Bowel Grasper", Icons.pan_tool_alt),
 
-              buildDeviceCard("Endoscope", Icons.visibility),
+              buildDeviceCard("Dissector", Icons.content_cut),
 
-              buildDeviceCard("Surgical Forceps", Icons.build),
+              buildDeviceCard("Trocar", Icons.adjust),
 
-              buildDeviceCard("Catheter Device", Icons.water_drop),
+              buildDeviceCard("Surgical Stapler", Icons.construction),
+
+              buildDeviceCard("Forceps", Icons.build),
+
+              buildDeviceCard("Needle Holder", Icons.architecture),
+
+              buildDeviceCard("Suction", Icons.air),
+
+              buildDeviceCard("Scissors", Icons.content_cut),
+
+              buildDeviceCard("Clip Applier", Icons.link),
 
               const SizedBox(height: 40),
 
@@ -93,6 +114,12 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () async {
+                    if (selectedDevice == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Please select a device")),
+                      );
+                      return;
+                    }
                     final session = ref.read(sessionProvider);
 
                     print(
@@ -101,8 +128,12 @@ class _DeviceSelectionScreenState extends ConsumerState<DeviceSelectionScreen> {
 
                     ref
                         .read(sessionProvider.notifier)
-                        .saveDevice(selectedDevice);
-
+                        .saveDevice(selectedDevice!);
+                    ref
+                        .read(dashboardProvider.notifier)
+                        .selectDevice(
+                          deviceMap[selectedDevice!] ?? DeviceType.unknown,
+                        );
                     final started = await ref
                         .read(dashboardProvider.notifier)
                         .startMonitoring();

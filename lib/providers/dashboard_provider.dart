@@ -9,13 +9,12 @@ import '../models/session_model.dart';
 import '../models/force_data_model.dart';
 import '../models/timeline_event_model.dart';
 import '../models/graph_point.dart';
-import '../features/device/biopsy/biopsy_processor.dart';
-import '../features/device/biopsy/biopsy_result.dart';
 import '../repositories/session_repository.dart';
 import '../repositories/analytics_repository.dart';
-
+import '../devices/core/device_metric.dart';
 import '../services/wifi/esp32_service.dart';
-
+import '../devices/manager/device_manager.dart';
+import '../devices/registry/device_type.dart';
 import 'dashboard_state.dart';
 import 'service_provider.dart';
 import 'session_provider.dart';
@@ -26,7 +25,10 @@ final dashboardProvider =
     });
 
 class DashboardNotifier extends StateNotifier<DashboardState> {
-  DashboardNotifier(this._service, this.ref) : super(DashboardState.initial());
+  DashboardNotifier(this._service, this.ref) : super(DashboardState.initial()) {
+    _deviceManager = DeviceManager();
+  }
+
   final DateFormat _dateTimeFormat = DateFormat('dd-MM-yyyy HH:mm:ss');
   final Esp32Service _service;
   final Ref ref;
@@ -42,7 +44,15 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   double _graphX = 0;
 
-  final BiopsyProcessor _biopsyProcessor = BiopsyProcessor();
+  late final DeviceManager _deviceManager;
+
+  String get primaryMetricLabel => _deviceManager.primaryMetricLabel;
+
+  String get dashboardTitle => _deviceManager.dashboardTitle;
+
+  String get stateLabel => _deviceManager.stateLabel;
+
+  List<DeviceMetric> get metrics => _deviceManager.currentPlugin.metrics;
 
   bool _previousClick = false;
 
@@ -64,6 +74,13 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   DateTime? _startTime;
 
+  BiopsyState _parseBiopsyState(String state) {
+    return BiopsyState.values.firstWhere(
+      (e) => e.name == state,
+      orElse: () => BiopsyState.free,
+    );
+  }
+
   // ===================================================
   // CONNECTION TEST ONLY
   // ===================================================
@@ -72,6 +89,19 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     return await _service.testConnection();
   }
 
+  void selectDevice(DeviceType type) {
+    _deviceManager.selectDevice(type);
+
+    _updateSelectedDeviceState();
+  }
+
+  void _updateSelectedDeviceState() {
+    state = state.copyWith(
+      selectedDevice: _deviceManager.currentDevice,
+      selectedDeviceName: _deviceManager.currentInfo.displayName,
+      primaryMetricLabel: _deviceManager.primaryMetricLabel,
+    );
+  }
   // ===================================================
   // START MONITORING
   // ===================================================
@@ -92,8 +122,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
     _lastState = null;
 
-    _biopsyProcessor.reset();
-
+    if (_deviceManager.currentDevice != DeviceType.unknown) {
+      _deviceManager.currentPlugin.reset();
+    }
     _previousClick = false;
 
     _graphPoints.clear();
@@ -102,7 +133,11 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
     _firedTimer?.cancel();
 
-    state = DashboardState.initial();
+    state = DashboardState.initial().copyWith(
+      selectedDevice: _deviceManager.currentDevice,
+      selectedDeviceName: _deviceManager.currentInfo.displayName,
+      primaryMetricLabel: _deviceManager.primaryMetricLabel,
+    );
 
     _startTime = DateTime.now();
     ref.read(sessionProvider.notifier).startProcedure();
@@ -184,26 +219,37 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   void _processData(DeviceDataModel data) {
+    if (_deviceManager.currentDevice == DeviceType.unknown) {
+      return;
+    }
     print('CLICK=${data.click}  VALUE=${data.value}  STATE=${data.state}');
     if (data.click && !_previousClick) {
       print('CLICK DETECTED');
       _pressCount++;
 
-      final BiopsyResult result = _biopsyProcessor.handleClick();
-      print('BIOPSY STATE=${result.state}  SAMPLES=${result.sampleCount}');
+      final result = _deviceManager.currentPlugin.handleClick();
+      print(
+        '${_deviceManager.currentInfo.displayName} '
+        'STATE=${result.state} '
+        'COUNT=${result.primaryCount}',
+      );
 
-      if (result.state == BiopsyState.fired) {
+      if (_parseBiopsyState(result.state) == BiopsyState.fired) {
         _firedTimer?.cancel();
 
         _firedTimer = Timer(const Duration(seconds: 5), () {
-          _biopsyProcessor.setFree();
+          _deviceManager.currentPlugin.setFree();
 
-          state = state.copyWith(biopsyState: _biopsyProcessor.result.state);
+          state = state.copyWith(
+            biopsyState: _parseBiopsyState(
+              _deviceManager.currentPlugin.result.state,
+            ),
+          );
         });
       }
 
-      if (result.sampleCount > state.biopsySampleCount) {
-        ref.read(sessionProvider.notifier).recordSample(result.sampleCount);
+      if (result.primaryCount > state.biopsySampleCount) {
+        ref.read(sessionProvider.notifier).recordSample(result.primaryCount);
       }
     }
 
@@ -242,9 +288,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     final duration = DateTime.now().difference(_startTime!);
 
     state = state.copyWith(
-      biopsyState: _biopsyProcessor.result.state,
+      biopsyState: _parseBiopsyState(_deviceManager.currentPlugin.result.state),
       graphPoints: List.from(_graphPoints),
-      biopsySampleCount: _biopsyProcessor.result.sampleCount,
+      biopsySampleCount: _deviceManager.currentPlugin.result.primaryCount,
       latestData: data,
       totalPressCount: _pressCount,
       averageForce: average,
