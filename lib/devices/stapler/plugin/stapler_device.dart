@@ -69,6 +69,7 @@ class StaplerDevice implements SurgicalDevice {
       label: 'Fire Count',
       value: _processor.result.fireCount.toString(),
     ),
+    DeviceMetric(label: 'State', value: _processor.result.state.toUpperCase()),
   ];
 
   @override

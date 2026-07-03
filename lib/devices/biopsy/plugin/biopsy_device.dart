@@ -71,9 +71,7 @@ class BiopsyDevice implements SurgicalDevice {
 
   @override
   List<DeviceMetric> get metrics => [
-    DeviceMetric(
-      label: "Samples",
-      value: _processor.result.sampleCount.toString(),
-    ),
+    DeviceMetric(label: 'Samples', value: result.primaryCount.toString()),
+    DeviceMetric(label: 'State', value: result.state.toUpperCase()),
   ];
 }

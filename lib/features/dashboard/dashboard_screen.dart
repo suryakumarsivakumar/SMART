@@ -309,11 +309,16 @@ class DashboardScreen extends ConsumerWidget {
 
                     const SizedBox(height: 20),
 
-                    ListTile(
-                      leading: const Icon(Icons.ads_click),
-                      title: const Text("Press Count"),
-                      trailing: Text(dashboard.totalPressCount.toString()),
-                    ),
+                    ...ref
+                        .read(dashboardProvider.notifier)
+                        .metrics
+                        .map(
+                          (metric) => ListTile(
+                            leading: const Icon(Icons.analytics),
+                            title: Text(metric.label),
+                            trailing: Text(metric.value),
+                          ),
+                        ),
 
                     ListTile(
                       leading: const Icon(Icons.bar_chart),
