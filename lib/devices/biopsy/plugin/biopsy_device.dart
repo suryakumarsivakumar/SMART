@@ -5,10 +5,13 @@ import '../../registry/device_type.dart';
 import '../biopsy_processor.dart';
 import '../../core/device_result.dart';
 import '../../core/device_metric.dart';
+import '../../../graphs/models/device_graph.dart';
+import '../../../graphs/graph_type.dart';
+import '../biopsy_analytics.dart';
 
 class BiopsyDevice implements SurgicalDevice {
   final BiopsyProcessor _processor = BiopsyProcessor();
-
+  final BiopsyAnalytics deviceAnalytics = BiopsyAnalytics();
   @override
   DeviceInfo get info => DeviceRegistry.get(DeviceType.biopsyGun);
   @override
@@ -74,4 +77,30 @@ class BiopsyDevice implements SurgicalDevice {
     DeviceMetric(label: 'Samples', value: result.primaryCount.toString()),
     DeviceMetric(label: 'State', value: result.state.toUpperCase()),
   ];
+
+  @override
+  List<DeviceGraph> get graphs => [
+    DeviceGraph(type: GraphType.liveForce, title: "Live Force"),
+
+    DeviceGraph(
+      type: GraphType.forceHistory,
+      title: "Biopsy Force History",
+      data: deviceAnalytics.forceHistory,
+    ),
+
+    DeviceGraph(
+      type: GraphType.durationTrend,
+      title: "Press Duration",
+      data: deviceAnalytics.durationHistory,
+    ),
+
+    DeviceGraph(
+      type: GraphType.timeline,
+      title: "Procedure Timeline",
+      data: deviceAnalytics.timeline,
+    ),
+  ];
+
+  @override
+  BiopsyAnalytics get procedureAnalytics => deviceAnalytics;
 }

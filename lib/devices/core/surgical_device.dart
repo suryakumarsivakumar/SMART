@@ -1,6 +1,7 @@
 import 'device_result.dart';
 import '../registry/device_info.dart';
 import 'device_metric.dart';
+import '../../graphs/models/device_graph.dart';
 
 abstract class SurgicalDevice {
   DeviceInfo get info;
@@ -27,4 +28,8 @@ abstract class SurgicalDevice {
   Map<String, dynamic> get analytics;
 
   List<DeviceMetric> get metrics;
+
+  List<DeviceGraph> get graphs;
+
+  Object get procedureAnalytics;
 }

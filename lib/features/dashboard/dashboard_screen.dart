@@ -5,8 +5,11 @@ import '../../devices/registry/device_type.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../providers/pdf_provider.dart';
 import '../../providers/session_provider.dart';
-import 'widgets/live_force_graph.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../graphs/renderer/graph_renderer.dart';
+import '../../graphs/widgets/live_force_graph.dart';
+import '../../graphs/models/device_graph.dart';
+import '../../graphs/graph_type.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -235,19 +238,16 @@ class DashboardScreen extends ConsumerWidget {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(20),
-
                 child: Column(
                   children: [
                     const Text(
-                      "Live Force Graph",
+                      "Live Force",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     LiveForceGraph(points: dashboard.graphPoints),
                   ],
                 ),
@@ -255,7 +255,12 @@ class DashboardScreen extends ConsumerWidget {
             ),
 
             const SizedBox(height: 20),
-
+            ...ref
+                .read(dashboardProvider.notifier)
+                .currentPlugin
+                .graphs
+                .where((graph) => graph.type != GraphType.liveForce)
+                .map((graph) => GraphRenderer(graph: graph)),
             //--------------------------------
             // CURRENT FORCE
             //--------------------------------

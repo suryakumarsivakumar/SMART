@@ -17,6 +17,9 @@ import '../devices/registry/device_type.dart';
 import 'dashboard_state.dart';
 import 'service_provider.dart';
 import 'session_provider.dart';
+import '../devices/biopsy/biopsy_analytics.dart';
+import '../devices/stapler/stapler_analytics.dart';
+import '../devices/core/surgical_device.dart';
 
 final dashboardProvider =
     StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
@@ -44,6 +47,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   double _graphX = 0;
 
   late final DeviceManager _deviceManager;
+  DeviceManager get deviceManager => _deviceManager;
+  SurgicalDevice get currentPlugin => _deviceManager.currentPlugin;
 
   String get primaryMetricLabel => _deviceManager.primaryMetricLabel;
 
@@ -116,6 +121,16 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
     if (_deviceManager.currentDevice != DeviceType.unknown) {
       _deviceManager.currentPlugin.reset();
+    }
+
+    final analytics = _deviceManager.currentPlugin.procedureAnalytics;
+
+    if (analytics is BiopsyAnalytics) {
+      analytics.clear();
+    }
+
+    if (analytics is StaplerAnalytics) {
+      analytics.clear();
     }
     _previousClick = false;
 
@@ -226,6 +241,24 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         'COUNT=${result.primaryCount}',
       );
 
+      final analytics = _deviceManager.currentPlugin.procedureAnalytics;
+      if (analytics is BiopsyAnalytics) {
+        analytics.addShot(
+          sampleNumber: result.primaryCount,
+          peakForce: data.value.toDouble(),
+          durationMs: 0,
+          timestamp: DateTime.now(),
+        );
+      }
+
+      if (analytics is StaplerAnalytics) {
+        analytics.addFire(
+          fireNumber: result.primaryCount,
+          peakForce: data.value.toDouble(),
+          durationMs: 0,
+          timestamp: DateTime.now(),
+        );
+      }
       if (result.state.toUpperCase() == "FIRED") {
         _firedTimer?.cancel();
 

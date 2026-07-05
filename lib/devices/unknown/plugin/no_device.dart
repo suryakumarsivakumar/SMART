@@ -4,6 +4,7 @@ import '../../registry/device_info.dart';
 import '../../registry/device_registry.dart';
 import '../../registry/device_type.dart';
 import '../../core/device_metric.dart';
+import '../../../graphs/models/device_graph.dart';
 
 class NoDevice implements SurgicalDevice {
   @override
@@ -47,4 +48,10 @@ class NoDevice implements SurgicalDevice {
 
   @override
   Map<String, dynamic> get analytics => {};
+
+  @override
+  List<DeviceGraph> get graphs => const [];
+
+  @override
+  Object get procedureAnalytics => Object();
 }
