@@ -5,6 +5,7 @@ import '../../registry/device_registry.dart';
 import '../../registry/device_type.dart';
 import '../../core/device_metric.dart';
 import '../../../graphs/models/device_graph.dart';
+import '../../core/empty_procedure_analytics.dart';
 
 class NoDevice implements SurgicalDevice {
   @override
@@ -52,6 +53,11 @@ class NoDevice implements SurgicalDevice {
   @override
   List<DeviceGraph> get graphs => const [];
 
+  final EmptyProcedureAnalytics _analytics = EmptyProcedureAnalytics();
+
   @override
-  Object get procedureAnalytics => Object();
+  EmptyProcedureAnalytics get procedureAnalytics => _analytics;
+
+  @override
+  List<DeviceGraph> buildGraphs() => [];
 }

@@ -8,6 +8,9 @@ import '../../core/device_metric.dart';
 import '../../../graphs/models/device_graph.dart';
 import '../../../graphs/graph_type.dart';
 import '../biopsy_analytics.dart';
+import '../../../graphs/models/event_force.dart';
+import '../../../graphs/models/duration_point.dart';
+import '../../../models/timeline_event_model.dart';
 
 class BiopsyDevice implements SurgicalDevice {
   final BiopsyProcessor _processor = BiopsyProcessor();
@@ -77,29 +80,32 @@ class BiopsyDevice implements SurgicalDevice {
     DeviceMetric(label: 'Samples', value: result.primaryCount.toString()),
     DeviceMetric(label: 'State', value: result.state.toUpperCase()),
   ];
-
   @override
-  List<DeviceGraph> get graphs => [
-    DeviceGraph(type: GraphType.liveForce, title: "Live Force"),
+  List<DeviceGraph> get graphs => buildGraphs();
+  @override
+  List<DeviceGraph> buildGraphs() {
+    return [
+      DeviceGraph(type: GraphType.liveForce, title: "Live Force"),
 
-    DeviceGraph(
-      type: GraphType.forceHistory,
-      title: "Biopsy Force History",
-      data: deviceAnalytics.forceHistory,
-    ),
+      DeviceGraph(
+        type: GraphType.forceHistory,
+        title: "Biopsy Force History",
+        data: List<EventForce>.from(deviceAnalytics.forceHistory),
+      ),
 
-    DeviceGraph(
-      type: GraphType.durationTrend,
-      title: "Press Duration",
-      data: deviceAnalytics.durationHistory,
-    ),
+      DeviceGraph(
+        type: GraphType.durationTrend,
+        title: "Press Duration",
+        data: List<DurationPoint>.from(deviceAnalytics.durationHistory),
+      ),
 
-    DeviceGraph(
-      type: GraphType.timeline,
-      title: "Procedure Timeline",
-      data: deviceAnalytics.timeline,
-    ),
-  ];
+      DeviceGraph(
+        type: GraphType.timeline,
+        title: "Procedure Timeline",
+        data: List<TimelineEventModel>.from(deviceAnalytics.timeline),
+      ),
+    ];
+  }
 
   @override
   BiopsyAnalytics get procedureAnalytics => deviceAnalytics;

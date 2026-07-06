@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-
 import '../models/event_force.dart';
 
 class EventHistoryGraph extends StatelessWidget {
@@ -13,17 +12,13 @@ class EventHistoryGraph extends StatelessWidget {
     return SizedBox(
       height: 250,
       child: SfCartesianChart(
-        title: ChartTitle(text: 'Peak Force History'),
-        primaryXAxis: NumericAxis(title: AxisTitle(text: 'Event')),
-        primaryYAxis: NumericAxis(
-          title: AxisTitle(text: 'Peak Force'),
-          minimum: 0,
-        ),
-        series: <ColumnSeries<EventForce, double>>[
-          ColumnSeries<EventForce, double>(
+        primaryXAxis: NumericAxis(title: AxisTitle(text: "Event")),
+        primaryYAxis: NumericAxis(title: AxisTitle(text: "Peak Force")),
+        series: <ColumnSeries<EventForce, int>>[
+          ColumnSeries<EventForce, int>(
             dataSource: events,
-            xValueMapper: (EventForce e, _) => e.event.toDouble(),
-            yValueMapper: (EventForce e, _) => e.peakForce,
+            xValueMapper: (point, _) => point.event,
+            yValueMapper: (point, _) => point.peakForce,
           ),
         ],
       ),

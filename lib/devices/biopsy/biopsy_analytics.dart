@@ -1,8 +1,9 @@
 import '../../graphs/models/event_force.dart';
 import '../../graphs/models/duration_point.dart';
 import '../../models/timeline_event_model.dart';
+import '../core/procedure_analytics.dart';
 
-class BiopsyAnalytics {
+class BiopsyAnalytics implements ProcedureAnalytics {
   final List<EventForce> _forceHistory = [];
 
   final List<DurationPoint> _durationHistory = [];
@@ -15,6 +16,20 @@ class BiopsyAnalytics {
       List.unmodifiable(_durationHistory);
 
   List<TimelineEventModel> get timeline => List.unmodifiable(_timeline);
+  @override
+  void recordEvent({
+    required int eventNumber,
+    required double peakForce,
+    required double durationMs,
+    required DateTime timestamp,
+  }) {
+    addShot(
+      sampleNumber: eventNumber,
+      peakForce: peakForce,
+      durationMs: durationMs,
+      timestamp: timestamp,
+    );
+  }
 
   void addShot({
     required int sampleNumber,
@@ -33,6 +48,7 @@ class BiopsyAnalytics {
     );
   }
 
+  @override
   void clear() {
     _forceHistory.clear();
     _durationHistory.clear();

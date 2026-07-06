@@ -2,6 +2,7 @@ import 'device_result.dart';
 import '../registry/device_info.dart';
 import 'device_metric.dart';
 import '../../graphs/models/device_graph.dart';
+import 'procedure_analytics.dart';
 
 abstract class SurgicalDevice {
   DeviceInfo get info;
@@ -31,5 +32,7 @@ abstract class SurgicalDevice {
 
   List<DeviceGraph> get graphs;
 
-  Object get procedureAnalytics;
+  List<DeviceGraph> buildGraphs();
+
+  ProcedureAnalytics get procedureAnalytics;
 }

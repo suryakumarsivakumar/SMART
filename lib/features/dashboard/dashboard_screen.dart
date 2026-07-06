@@ -7,9 +7,8 @@ import '../../providers/pdf_provider.dart';
 import '../../providers/session_provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../graphs/renderer/graph_renderer.dart';
-import '../../graphs/widgets/live_force_graph.dart';
-import '../../graphs/models/device_graph.dart';
 import '../../graphs/graph_type.dart';
+import '../../graphs/renderer/live_graph_renderer.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -235,30 +234,12 @@ class DashboardScreen extends ConsumerWidget {
             //--------------------------------
             // LIVE FORCE GRAPH
             //--------------------------------
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Live Force",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    LiveForceGraph(points: dashboard.graphPoints),
-                  ],
-                ),
-              ),
-            ),
+            LiveGraphRenderer(points: dashboard.graphPoints),
 
             const SizedBox(height: 20),
-            ...ref
-                .read(dashboardProvider.notifier)
-                .currentPlugin
-                .graphs
+
+            const SizedBox(height: 20),
+            ...dashboard.graphs
                 .where((graph) => graph.type != GraphType.liveForce)
                 .map((graph) => GraphRenderer(graph: graph)),
             //--------------------------------
@@ -314,16 +295,13 @@ class DashboardScreen extends ConsumerWidget {
 
                     const SizedBox(height: 20),
 
-                    ...ref
-                        .read(dashboardProvider.notifier)
-                        .metrics
-                        .map(
-                          (metric) => ListTile(
-                            leading: const Icon(Icons.analytics),
-                            title: Text(metric.label),
-                            trailing: Text(metric.value),
-                          ),
-                        ),
+                    ...dashboard.metrics.map(
+                      (metric) => ListTile(
+                        leading: const Icon(Icons.analytics),
+                        title: Text(metric.label),
+                        trailing: Text(metric.value),
+                      ),
+                    ),
 
                     ListTile(
                       leading: const Icon(Icons.bar_chart),

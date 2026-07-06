@@ -1,6 +1,8 @@
 import '../models/device_data_model.dart';
 import '../models/graph_point.dart';
 import '../devices/registry/device_type.dart';
+import '../graphs/models/device_graph.dart';
+import '../devices/core/device_metric.dart';
 
 class DashboardState {
   final DeviceDataModel? latestData;
@@ -12,6 +14,7 @@ class DashboardState {
   final double maxForce;
 
   final List<GraphPoint> graphPoints;
+  final List<DeviceGraph> graphs;
 
   final Duration usageDuration;
   final String currentState;
@@ -19,12 +22,14 @@ class DashboardState {
   final int biopsySampleCount;
   final bool procedureEnded;
   final DeviceType selectedDevice;
+  final List<DeviceMetric> metrics;
 
   final String selectedDeviceName;
   final String primaryMetricLabel;
   const DashboardState({
     required this.procedureEnded,
     required this.graphPoints,
+    required this.graphs,
     required this.latestData,
     required this.totalPressCount,
     required this.averageForce,
@@ -34,6 +39,7 @@ class DashboardState {
     required this.biopsySampleCount,
     required this.selectedDevice,
     required this.selectedDeviceName,
+    required this.metrics,
     this.primaryMetricLabel = '',
   });
 
@@ -41,6 +47,8 @@ class DashboardState {
     return const DashboardState(
       procedureEnded: false,
       graphPoints: [],
+      graphs: [],
+      metrics: [],
       currentState: 'IDLE',
       biopsySampleCount: 0,
       latestData: null,
@@ -57,6 +65,7 @@ class DashboardState {
   DashboardState copyWith({
     bool? procedureEnded,
     List<GraphPoint>? graphPoints,
+    List<DeviceGraph>? graphs,
     String? currentState,
     int? biopsySampleCount,
     DeviceDataModel? latestData,
@@ -67,10 +76,13 @@ class DashboardState {
     DeviceType? selectedDevice,
     String? selectedDeviceName,
     String? primaryMetricLabel,
+    List<DeviceMetric>? metrics,
   }) {
     return DashboardState(
       procedureEnded: procedureEnded ?? this.procedureEnded,
       graphPoints: graphPoints ?? this.graphPoints,
+      graphs: graphs ?? this.graphs,
+      metrics: metrics ?? this.metrics,
       currentState: currentState ?? this.currentState,
       biopsySampleCount: biopsySampleCount ?? this.biopsySampleCount,
       latestData: latestData ?? this.latestData,

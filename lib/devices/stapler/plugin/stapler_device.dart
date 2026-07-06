@@ -8,6 +8,9 @@ import '../../core/device_metric.dart';
 import '../../../graphs/graph_type.dart';
 import '../stapler_processor.dart';
 import '../stapler_analytics.dart';
+import '../../../graphs/models/event_force.dart';
+import '../../../graphs/models/duration_point.dart';
+import '../../../models/timeline_event_model.dart';
 
 class StaplerDevice implements SurgicalDevice {
   final StaplerProcessor _processor = StaplerProcessor();
@@ -82,29 +85,32 @@ class StaplerDevice implements SurgicalDevice {
 
   @override
   String get stateLabel => _processor.result.state.toUpperCase();
-
   @override
-  List<DeviceGraph> get graphs => [
-    DeviceGraph(type: GraphType.liveForce, title: "Live Force"),
+  List<DeviceGraph> get graphs => buildGraphs();
+  @override
+  List<DeviceGraph> buildGraphs() {
+    return [
+      DeviceGraph(type: GraphType.liveForce, title: "Live Force"),
 
-    DeviceGraph(
-      type: GraphType.forceHistory,
-      title: "Fire Force History",
-      data: deviceAnalytics.forceHistory,
-    ),
+      DeviceGraph(
+        type: GraphType.forceHistory,
+        title: "Fire Force History",
+        data: List<EventForce>.from(deviceAnalytics.forceHistory),
+      ),
 
-    DeviceGraph(
-      type: GraphType.durationTrend,
-      title: "Fire Duration",
-      data: deviceAnalytics.durationHistory,
-    ),
+      DeviceGraph(
+        type: GraphType.durationTrend,
+        title: "Fire Duration",
+        data: List<DurationPoint>.from(deviceAnalytics.durationHistory),
+      ),
 
-    DeviceGraph(
-      type: GraphType.timeline,
-      title: "Fire Timeline",
-      data: deviceAnalytics.timeline,
-    ),
-  ];
+      DeviceGraph(
+        type: GraphType.timeline,
+        title: "Fire Timeline",
+        data: List<TimelineEventModel>.from(deviceAnalytics.timeline),
+      ),
+    ];
+  }
 
   @override
   StaplerAnalytics get procedureAnalytics => deviceAnalytics;

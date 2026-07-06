@@ -17,8 +17,6 @@ import '../devices/registry/device_type.dart';
 import 'dashboard_state.dart';
 import 'service_provider.dart';
 import 'session_provider.dart';
-import '../devices/biopsy/biopsy_analytics.dart';
-import '../devices/stapler/stapler_analytics.dart';
 import '../devices/core/surgical_device.dart';
 
 final dashboardProvider =
@@ -97,6 +95,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       selectedDevice: _deviceManager.currentDevice,
       selectedDeviceName: _deviceManager.currentInfo.displayName,
       primaryMetricLabel: _deviceManager.primaryMetricLabel,
+      metrics: List.from(_deviceManager.currentPlugin.metrics),
+      graphs: _deviceManager.currentPlugin.buildGraphs(),
     );
   }
   // ===================================================
@@ -125,13 +125,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
     final analytics = _deviceManager.currentPlugin.procedureAnalytics;
 
-    if (analytics is BiopsyAnalytics) {
-      analytics.clear();
-    }
-
-    if (analytics is StaplerAnalytics) {
-      analytics.clear();
-    }
+    analytics.clear();
     _previousClick = false;
 
     _graphPoints.clear();
@@ -140,12 +134,13 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
     _firedTimer?.cancel();
 
-    state = DashboardState.initial().copyWith(
+    state = state.copyWith(
       selectedDevice: _deviceManager.currentDevice,
       selectedDeviceName: _deviceManager.currentInfo.displayName,
       primaryMetricLabel: _deviceManager.primaryMetricLabel,
+      metrics: List.from(_deviceManager.currentPlugin.metrics),
+      graphs: _deviceManager.currentPlugin.buildGraphs(),
     );
-
     _startTime = DateTime.now();
     ref.read(sessionProvider.notifier).startProcedure();
 
@@ -242,23 +237,12 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       );
 
       final analytics = _deviceManager.currentPlugin.procedureAnalytics;
-      if (analytics is BiopsyAnalytics) {
-        analytics.addShot(
-          sampleNumber: result.primaryCount,
-          peakForce: data.value.toDouble(),
-          durationMs: 0,
-          timestamp: DateTime.now(),
-        );
-      }
-
-      if (analytics is StaplerAnalytics) {
-        analytics.addFire(
-          fireNumber: result.primaryCount,
-          peakForce: data.value.toDouble(),
-          durationMs: 0,
-          timestamp: DateTime.now(),
-        );
-      }
+      analytics.recordEvent(
+        eventNumber: result.primaryCount,
+        peakForce: data.value.toDouble(),
+        durationMs: 0,
+        timestamp: DateTime.now(),
+      );
       if (result.state.toUpperCase() == "FIRED") {
         _firedTimer?.cancel();
 
@@ -314,6 +298,8 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     state = state.copyWith(
       currentState: _deviceManager.currentPlugin.result.state.toUpperCase(),
       graphPoints: List.from(_graphPoints),
+      metrics: List.from(_deviceManager.currentPlugin.metrics),
+      graphs: _deviceManager.currentPlugin.buildGraphs(),
       biopsySampleCount: _deviceManager.currentPlugin.result.primaryCount,
       latestData: data,
       totalPressCount: _pressCount,
