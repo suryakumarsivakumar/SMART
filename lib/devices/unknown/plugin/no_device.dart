@@ -6,6 +6,7 @@ import '../../registry/device_type.dart';
 import '../../core/device_metric.dart';
 import '../../../graphs/models/device_graph.dart';
 import '../../core/empty_procedure_analytics.dart';
+import 'package:flutter/material.dart';
 
 class NoDevice implements SurgicalDevice {
   @override
@@ -18,7 +19,7 @@ class NoDevice implements SurgicalDevice {
   String get primaryMetricLabel => "";
 
   @override
-  String get stateLabel => "Status";
+  String get statusCardTitle => "Status";
 
   @override
   List<DeviceMetric> get metrics => const [];
@@ -60,4 +61,13 @@ class NoDevice implements SurgicalDevice {
 
   @override
   List<DeviceGraph> buildGraphs() => [];
+
+  @override
+  String get imageAsset => "assets/device_images/biopsy_device.svg";
+
+  @override
+  IconData get stateIcon => Icons.build;
+
+  @override
+  Color get stateColor => Colors.grey;
 }

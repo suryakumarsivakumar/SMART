@@ -137,22 +137,120 @@ class PdfSections {
   // ===================================================
 
   static List<pw.Widget> timeline(PdfReportData data) {
-    return [
+    final Map<String, List<String>> grouped = {};
+
+    String? procedureStart;
+    String? procedureEnd;
+
+    for (final line in data.timeline) {
+      final parts = line.split('|');
+
+      if (parts.length != 3) continue;
+
+      final device = parts[0];
+      final time = parts[1];
+      final event = parts[2];
+
+      if (event == "Procedure Started") {
+        procedureStart = "$time    $event";
+        continue;
+      }
+
+      if (event == "Procedure Completed") {
+        procedureEnd = "$time    $event";
+        continue;
+      }
+
+      grouped.putIfAbsent(device, () => []);
+
+      grouped[device]!.add("$time|$event");
+    }
+
+    final widgets = <pw.Widget>[
       pw.Text(
-        'PROCEDURE TIMELINE',
+        "PROCEDURE TIMELINE",
         style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16),
       ),
-      pw.SizedBox(height: 8),
 
-      ...data.timeline.map(
-        (e) => pw.Padding(
-          padding: const pw.EdgeInsets.only(bottom: 4),
-          child: pw.Text(e),
-        ),
-      ),
-
-      pw.Divider(),
+      pw.SizedBox(height: 12),
     ];
+
+    //----------------------------------------------------
+    // Procedure Started
+    //----------------------------------------------------
+
+    if (procedureStart != null) {
+      widgets.add(
+        pw.Text(
+          procedureStart,
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+        ),
+      );
+
+      widgets.add(pw.SizedBox(height: 15));
+    }
+
+    //----------------------------------------------------
+    // Device Sections
+    //----------------------------------------------------
+
+    grouped.forEach((device, events) {
+      widgets.add(
+        pw.Text(
+          "Selected Device : $device",
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 13),
+        ),
+      );
+
+      widgets.add(pw.SizedBox(height: 8));
+
+      for (final item in events) {
+        final p = item.split('|');
+
+        widgets.add(
+          pw.Padding(
+            padding: const pw.EdgeInsets.only(bottom: 4),
+            child: pw.Text("${p[0]}    ${p[1]}"),
+          ),
+        );
+      }
+
+      widgets.add(pw.SizedBox(height: 8));
+
+      final total = events.length;
+
+      widgets.add(
+        pw.Text(
+          device.toLowerCase().contains("stapler")
+              ? "Total Firings : $total"
+              : "Total Samples : $total",
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+        ),
+      );
+
+      widgets.add(pw.SizedBox(height: 10));
+
+      widgets.add(pw.Divider());
+
+      widgets.add(pw.SizedBox(height: 10));
+    });
+
+    //----------------------------------------------------
+    // Procedure Completed
+    //----------------------------------------------------
+
+    if (procedureEnd != null) {
+      widgets.add(
+        pw.Text(
+          procedureEnd,
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+        ),
+      );
+
+      widgets.add(pw.Divider());
+    }
+
+    return widgets;
   }
 
   // ===================================================

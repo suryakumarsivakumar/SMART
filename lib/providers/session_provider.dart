@@ -67,8 +67,9 @@ class SessionNotifier extends StateNotifier<SessionData> {
       timeline: [
         ...state.timeline,
         TimelineEventModel(
+          device: state.deviceName ?? "Unknown Device",
           timestamp: DateTime.now(),
-          event: 'Procedure Started',
+          event: "Procedure Started",
         ),
       ],
     );
@@ -78,13 +79,14 @@ class SessionNotifier extends StateNotifier<SessionData> {
   // SAMPLE COLLECTED
   // ==========================================
 
-  void recordSample(int sampleNumber) {
+  void recordEvent({required String device, required String event}) {
     state = state.copyWith(
       timeline: [
         ...state.timeline,
         TimelineEventModel(
+          device: device,
+          event: event,
           timestamp: DateTime.now(),
-          event: 'Sample $sampleNumber Collected',
         ),
       ],
     );
@@ -100,8 +102,9 @@ class SessionNotifier extends StateNotifier<SessionData> {
       timeline: [
         ...state.timeline,
         TimelineEventModel(
+          device: state.deviceName ?? "Unknown Device",
           timestamp: DateTime.now(),
-          event: 'Procedure Completed',
+          event: "Procedure Completed",
         ),
       ],
     );

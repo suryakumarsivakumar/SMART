@@ -8,7 +8,6 @@ class EmptyProcedureAnalytics implements ProcedureAnalytics {
   void recordEvent({
     required int eventNumber,
     required double peakForce,
-    required double durationMs,
     required DateTime timestamp,
   }) {}
 }

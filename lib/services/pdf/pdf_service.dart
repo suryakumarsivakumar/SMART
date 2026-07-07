@@ -83,7 +83,10 @@ class PdfService {
       // Timeline
       //-----------------------------
       timeline: session.timeline
-          .map((e) => '${_dateTimeFormat.format(e.timestamp)} - ${e.event}')
+          .map(
+            (e) =>
+                '${e.device}|${_dateTimeFormat.format(e.timestamp)}|${e.event}',
+          )
           .toList(),
     );
 

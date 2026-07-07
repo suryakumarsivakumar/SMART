@@ -6,6 +6,7 @@ import '../../core/device_result.dart';
 import '../../core/device_metric.dart';
 import '../../../graphs/models/device_graph.dart';
 import '../../core/empty_procedure_analytics.dart';
+import 'package:flutter/material.dart';
 
 class BowelGrasperDevice implements SurgicalDevice {
   @override
@@ -17,7 +18,7 @@ class BowelGrasperDevice implements SurgicalDevice {
   String get primaryMetricLabel => "Grasps";
 
   @override
-  String get stateLabel => "Grasper State";
+  String get statusCardTitle => "Grasper State";
   @override
   void onSelected() {}
 
@@ -68,4 +69,13 @@ class BowelGrasperDevice implements SurgicalDevice {
 
   @override
   List<DeviceGraph> buildGraphs() => [];
+
+  @override
+  String get imageAsset => "assets/device_images/biopsy_device.svg";
+
+  @override
+  IconData get stateIcon => Icons.build;
+
+  @override
+  Color get stateColor => Colors.green;
 }

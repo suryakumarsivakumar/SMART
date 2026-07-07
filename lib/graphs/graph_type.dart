@@ -1,1 +1,1 @@
-enum GraphType { liveForce, forceHistory, durationTrend, timeline, histogram }
+enum GraphType { liveForce, forceHistory, timeline }

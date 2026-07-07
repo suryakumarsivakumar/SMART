@@ -6,25 +6,42 @@ class BiopsyProcessor {
 
   int _sampleCount = 0;
 
-  BiopsyResult get result =>
-      BiopsyResult(state: _state, sampleCount: _sampleCount);
+  BiopsyResult get result => BiopsyResult(
+    state: _state,
+    sampleCount: _sampleCount,
+    completedEvent: false,
+  );
 
   BiopsyResult handleClick() {
     switch (_state) {
       case BiopsyState.free:
         _state = BiopsyState.armed;
-        break;
+
+        return BiopsyResult(
+          state: _state,
+          sampleCount: _sampleCount,
+          completedEvent: false,
+          durationMs: 0,
+        );
 
       case BiopsyState.armed:
         _state = BiopsyState.fired;
         _sampleCount++;
-        break;
+
+        return BiopsyResult(
+          state: _state,
+          sampleCount: _sampleCount,
+          completedEvent: true,
+        );
 
       case BiopsyState.fired:
-        break;
+        return BiopsyResult(
+          state: _state,
+          sampleCount: _sampleCount,
+          completedEvent: false,
+          durationMs: 0,
+        );
     }
-
-    return result;
   }
 
   void setFree() {

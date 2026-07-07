@@ -3,6 +3,7 @@ import '../registry/device_info.dart';
 import 'device_metric.dart';
 import '../../graphs/models/device_graph.dart';
 import 'procedure_analytics.dart';
+import 'package:flutter/material.dart';
 
 abstract class SurgicalDevice {
   DeviceInfo get info;
@@ -10,9 +11,11 @@ abstract class SurgicalDevice {
   String get dashboardTitle;
 
   String get primaryMetricLabel;
-  String get stateLabel;
-
+  String get statusCardTitle;
+  String get imageAsset;
+  IconData get stateIcon;
   DeviceResult get result;
+  Color get stateColor;
 
   void onSelected();
 

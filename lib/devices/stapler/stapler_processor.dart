@@ -6,23 +6,38 @@ class StaplerProcessor {
 
   int _fireCount = 0;
 
-  StaplerResult get result =>
-      StaplerResult(state: _state.name, fireCount: _fireCount);
+  DateTime? _idleTime;
+
+  StaplerResult get result => StaplerResult(
+    state: _state,
+    fireCount: _fireCount,
+    completedEvent: false,
+  );
 
   void reset() {
     _state = StaplerState.idle;
     _fireCount = 0;
+    _idleTime = DateTime.now();
   }
 
   StaplerResult handleClick() {
+    final now = DateTime.now();
+
+    _idleTime ??= now;
+
     _fireCount++;
 
     _state = StaplerState.fired;
 
-    return result;
+    return StaplerResult(
+      state: _state,
+      fireCount: _fireCount,
+      completedEvent: true,
+    );
   }
 
   void setIdle() {
     _state = StaplerState.idle;
+    _idleTime = DateTime.now();
   }
 }

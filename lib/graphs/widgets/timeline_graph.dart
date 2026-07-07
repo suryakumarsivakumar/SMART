@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:intl/intl.dart';
 import '../../models/timeline_event_model.dart';
 
 class TimelineGraph extends StatelessWidget {
@@ -9,18 +9,29 @@ class TimelineGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formatter = DateFormat('HH:mm:ss');
+
     return Card(
-      child: ListView.builder(
+      child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: events.length,
+        separatorBuilder: (_, _) => const Divider(height: 1),
         itemBuilder: (context, index) {
           final e = events[index];
 
           return ListTile(
-            leading: const Icon(Icons.circle, size: 10),
-            title: Text(e.event),
-            subtitle: Text(e.timestamp.toString()),
+            leading: CircleAvatar(
+              radius: 14,
+              child: Text("${index + 1}", style: const TextStyle(fontSize: 12)),
+            ),
+
+            title: Text(
+              e.event,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+
+            subtitle: Text(formatter.format(e.timestamp)),
           );
         },
       ),

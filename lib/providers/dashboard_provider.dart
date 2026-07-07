@@ -18,6 +18,7 @@ import 'dashboard_state.dart';
 import 'service_provider.dart';
 import 'session_provider.dart';
 import '../devices/core/surgical_device.dart';
+import 'package:flutter/material.dart';
 
 final dashboardProvider =
     StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
@@ -52,7 +53,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
 
   String get dashboardTitle => _deviceManager.dashboardTitle;
 
-  String get stateLabel => _deviceManager.stateLabel;
+  String get statusCardTitle => _deviceManager.currentPlugin.statusCardTitle;
+
+  Color get stateColor => _deviceManager.currentPlugin.stateColor;
 
   List<DeviceMetric> get metrics => _deviceManager.currentPlugin.metrics;
 
@@ -61,8 +64,6 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   Timer? _firedTimer;
 
   SessionModel? currentSession;
-
-  String? _lastState;
 
   StreamSubscription? _subscription;
 
@@ -116,8 +117,6 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     _maxForce = 0;
     _forceSum = 0;
     _sampleCount = 0;
-
-    _lastState = null;
 
     if (_deviceManager.currentDevice != DeviceType.unknown) {
       _deviceManager.currentPlugin.reset();
@@ -237,12 +236,14 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       );
 
       final analytics = _deviceManager.currentPlugin.procedureAnalytics;
-      analytics.recordEvent(
-        eventNumber: result.primaryCount,
-        peakForce: data.value.toDouble(),
-        durationMs: 0,
-        timestamp: DateTime.now(),
-      );
+
+      if (result.completedEvent) {
+        analytics.recordEvent(
+          eventNumber: result.primaryCount,
+          peakForce: data.value.toDouble(),
+          timestamp: DateTime.now(),
+        );
+      }
       if (result.state.toUpperCase() == "FIRED") {
         _firedTimer?.cancel();
 
@@ -255,9 +256,18 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
           );
         });
       }
+      if (result.completedEvent) {
+        final eventText =
+            _deviceManager.currentPlugin.primaryMetricLabel == "Firings"
+            ? "Fire ${result.primaryCount} Completed"
+            : "Sample ${result.primaryCount} Collected";
 
-      if (result.primaryCount > state.biopsySampleCount) {
-        ref.read(sessionProvider.notifier).recordSample(result.primaryCount);
+        ref
+            .read(sessionProvider.notifier)
+            .recordEvent(
+              device: _deviceManager.currentInfo.displayName,
+              event: eventText,
+            );
       }
     }
 
@@ -282,14 +292,6 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     _analyticsRepository.saveForce(
       ForceDataModel(force: data.value.toDouble(), timestamp: DateTime.now()),
     );
-
-    if (_lastState != data.state) {
-      timelineBox.add(
-        TimelineEventModel(event: data.state, timestamp: DateTime.now()),
-      );
-
-      _lastState = data.state;
-    }
 
     final average = _forceSum / _sampleCount;
 
@@ -326,7 +328,10 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         ..durationSeconds = DateTime.now().difference(_startTime!).inSeconds
         ..endTime = DateTime.now()
         ..timelineEvents = sessionData.timeline
-            .map((e) => '${_dateTimeFormat.format(e.timestamp)} - ${e.event}')
+            .map(
+              (e) =>
+                  '${e.device}|${_dateTimeFormat.format(e.timestamp)}|${e.event}',
+            )
             .toList();
 
       await _sessionRepository.save(currentSession!);

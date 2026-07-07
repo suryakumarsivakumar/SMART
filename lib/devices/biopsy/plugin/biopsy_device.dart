@@ -9,8 +9,9 @@ import '../../../graphs/models/device_graph.dart';
 import '../../../graphs/graph_type.dart';
 import '../biopsy_analytics.dart';
 import '../../../graphs/models/event_force.dart';
-import '../../../graphs/models/duration_point.dart';
 import '../../../models/timeline_event_model.dart';
+import '../../../core/enums/biopsy_state.dart';
+import 'package:flutter/material.dart';
 
 class BiopsyDevice implements SurgicalDevice {
   final BiopsyProcessor _processor = BiopsyProcessor();
@@ -22,9 +23,38 @@ class BiopsyDevice implements SurgicalDevice {
 
   @override
   String get primaryMetricLabel => "Samples";
+  @override
+  String get statusCardTitle => "Biopsy Status";
+  @override
+  String get imageAsset => "assets/device_images/biopsy_device.svg";
 
   @override
-  String get stateLabel => "Device State";
+  IconData get stateIcon {
+    switch (_processor.result.state) {
+      case BiopsyState.free:
+        return Icons.lock_open;
+
+      case BiopsyState.armed:
+        return Icons.security;
+
+      case BiopsyState.fired:
+        return Icons.flash_on;
+    }
+  }
+
+  @override
+  Color get stateColor {
+    switch (_processor.result.state) {
+      case BiopsyState.free:
+        return Colors.green;
+
+      case BiopsyState.armed:
+        return Colors.orange;
+
+      case BiopsyState.fired:
+        return Colors.red;
+    }
+  }
 
   @override
   DeviceResult handleClick() {
@@ -34,6 +64,7 @@ class BiopsyDevice implements SurgicalDevice {
       state: result.state.name,
       primaryCount: result.sampleCount,
       primaryLabel: "Samples",
+      completedEvent: result.completedEvent,
     );
   }
 
@@ -50,6 +81,7 @@ class BiopsyDevice implements SurgicalDevice {
       state: result.state.name,
       primaryCount: result.sampleCount,
       primaryLabel: "Samples",
+      completedEvent: false,
     );
   }
 
@@ -91,12 +123,6 @@ class BiopsyDevice implements SurgicalDevice {
         type: GraphType.forceHistory,
         title: "Biopsy Force History",
         data: List<EventForce>.from(deviceAnalytics.forceHistory),
-      ),
-
-      DeviceGraph(
-        type: GraphType.durationTrend,
-        title: "Press Duration",
-        data: List<DurationPoint>.from(deviceAnalytics.durationHistory),
       ),
 
       DeviceGraph(

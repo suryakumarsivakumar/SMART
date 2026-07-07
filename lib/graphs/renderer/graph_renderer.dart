@@ -4,12 +4,8 @@ import '../graph_type.dart';
 import '../models/device_graph.dart';
 
 import '../widgets/event_history_graph.dart';
-import '../widgets/duration_trend_graph.dart';
 import '../widgets/timeline_graph.dart';
-import '../widgets/histogram_graph.dart';
 import '../models/event_force.dart';
-import '../models/duration_point.dart';
-import '../models/histogram_point.dart';
 import '../../models/timeline_event_model.dart';
 
 class GraphRenderer extends StatelessWidget {
@@ -27,19 +23,9 @@ class GraphRenderer extends StatelessWidget {
           events: (graph.data as List<EventForce>?) ?? [],
         );
 
-      case GraphType.durationTrend:
-        return DurationTrendGraph(
-          points: (graph.data as List<DurationPoint>?) ?? [],
-        );
-
       case GraphType.timeline:
         return TimelineGraph(
           events: (graph.data as List<TimelineEventModel>?) ?? [],
-        );
-
-      case GraphType.histogram:
-        return HistogramGraph(
-          values: (graph.data as List<HistogramPoint>?) ?? [],
         );
     }
   }

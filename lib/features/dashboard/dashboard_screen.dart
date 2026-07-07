@@ -23,25 +23,7 @@ class DashboardScreen extends ConsumerWidget {
 
     const int batteryLevel = 95;
 
-    final String state = dashboard.currentState.toUpperCase();
-
-    Color stateColor = Colors.blue;
-
-    switch (state) {
-      case 'FREE':
-      case 'IDLE':
-        stateColor = Colors.green;
-        break;
-
-      case 'ARMED':
-        stateColor = Colors.orange;
-        break;
-
-      case 'FIRING':
-      case 'FIRED':
-        stateColor = Colors.red;
-        break;
-    }
+    final stateColor = ref.read(dashboardProvider.notifier).stateColor;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -95,7 +77,7 @@ class DashboardScreen extends ConsumerWidget {
                     Text(
                       ref
                           .read(dashboardProvider.notifier)
-                          .stateLabel
+                          .statusCardTitle
                           .toUpperCase(),
                       style: const TextStyle(
                         fontSize: 18,
@@ -106,11 +88,10 @@ class DashboardScreen extends ConsumerWidget {
                     const SizedBox(height: 20),
 
                     Icon(
-                      state == 'FREE' || state == 'IDLE'
-                          ? Icons.lock_open
-                          : state == 'ARMED'
-                          ? Icons.security
-                          : Icons.flash_on,
+                      ref
+                          .read(dashboardProvider.notifier)
+                          .currentPlugin
+                          .stateIcon,
                       size: 80,
                       color: stateColor,
                     ),
@@ -148,36 +129,12 @@ class DashboardScreen extends ConsumerWidget {
                             width: 40,
                             height: 40,
                             child: SvgPicture.asset(
-                              dashboard.selectedDevice == DeviceType.biopsyGun
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.bowelGrasper
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.dissector
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.trocar
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.stapler
-                                  ? "assets/device_images/surgical_stapler.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.forceps
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.needleHolder
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.suction
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.scissors
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : dashboard.selectedDevice ==
-                                        DeviceType.clipApplier
-                                  ? "assets/device_images/biopsy_device.svg"
-                                  : "assets/device_images/biopsy_device.svg",
+                              ref
+                                  .read(dashboardProvider.notifier)
+                                  .currentPlugin
+                                  .imageAsset,
+                              width: 40,
+                              height: 40,
                               fit: BoxFit.contain,
                             ),
                           ),

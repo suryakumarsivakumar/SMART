@@ -17,18 +17,21 @@ class TimelineEventModelAdapter extends TypeAdapter<TimelineEventModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return TimelineEventModel(
-      event: fields[0] as String,
-      timestamp: fields[1] as DateTime,
+      device: fields[0] as String,
+      event: fields[1] as String,
+      timestamp: fields[2] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, TimelineEventModel obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.event)
+      ..write(obj.device)
       ..writeByte(1)
+      ..write(obj.event)
+      ..writeByte(2)
       ..write(obj.timestamp);
   }
 

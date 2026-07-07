@@ -20,7 +20,7 @@ class DeviceManager {
 
   String get primaryMetricLabel => currentPlugin.primaryMetricLabel;
 
-  String get stateLabel => currentPlugin.stateLabel;
+  String get stateLabel => currentPlugin.statusCardTitle;
 
   List<DeviceMetric> get metrics => currentPlugin.metrics;
 

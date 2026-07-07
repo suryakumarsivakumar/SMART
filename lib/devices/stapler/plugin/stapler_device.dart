@@ -9,8 +9,9 @@ import '../../../graphs/graph_type.dart';
 import '../stapler_processor.dart';
 import '../stapler_analytics.dart';
 import '../../../graphs/models/event_force.dart';
-import '../../../graphs/models/duration_point.dart';
 import '../../../models/timeline_event_model.dart';
+import 'package:flutter/material.dart';
+import '../../../core/enums/stapler_state.dart';
 
 class StaplerDevice implements SurgicalDevice {
   final StaplerProcessor _processor = StaplerProcessor();
@@ -20,13 +21,42 @@ class StaplerDevice implements SurgicalDevice {
   DeviceInfo get info => DeviceRegistry.get(DeviceType.stapler);
 
   @override
+  String get imageAsset => "assets/device_images/biopsy_device.svg";
+
+  @override
+  String get statusCardTitle => "Stapler Status";
+
+  @override
+  IconData get stateIcon {
+    switch (_processor.result.state) {
+      case StaplerState.idle:
+        return Icons.lock_open;
+
+      case StaplerState.fired:
+        return Icons.flash_on;
+    }
+  }
+
+  @override
+  Color get stateColor {
+    switch (_processor.result.state) {
+      case StaplerState.idle:
+        return Colors.green;
+
+      case StaplerState.fired:
+        return Colors.red;
+    }
+  }
+
+  @override
   DeviceResult handleClick() {
     final result = _processor.handleClick();
 
     return DeviceResult(
-      state: result.state,
+      state: result.state.name,
       primaryCount: result.fireCount,
       primaryLabel: 'Firings',
+      completedEvent: result.completedEvent,
     );
   }
 
@@ -40,9 +70,10 @@ class StaplerDevice implements SurgicalDevice {
     final result = _processor.result;
 
     return DeviceResult(
-      state: result.state,
+      state: result.state.name,
       primaryCount: result.fireCount,
       primaryLabel: 'Firings',
+      completedEvent: false,
     );
   }
 
@@ -65,7 +96,7 @@ class StaplerDevice implements SurgicalDevice {
   @override
   Map<String, dynamic> get analytics => {
     'fireCount': _processor.result.fireCount,
-    'state': _processor.result.state,
+    'state': _processor.result.state.name,
   };
 
   @override
@@ -74,7 +105,10 @@ class StaplerDevice implements SurgicalDevice {
       label: 'Fire Count',
       value: _processor.result.fireCount.toString(),
     ),
-    DeviceMetric(label: 'State', value: _processor.result.state.toUpperCase()),
+    DeviceMetric(
+      label: 'State',
+      value: _processor.result.state.name.toUpperCase(),
+    ),
   ];
 
   @override
@@ -83,8 +117,6 @@ class StaplerDevice implements SurgicalDevice {
   @override
   String get primaryMetricLabel => 'Firings';
 
-  @override
-  String get stateLabel => _processor.result.state.toUpperCase();
   @override
   List<DeviceGraph> get graphs => buildGraphs();
   @override
@@ -96,12 +128,6 @@ class StaplerDevice implements SurgicalDevice {
         type: GraphType.forceHistory,
         title: "Fire Force History",
         data: List<EventForce>.from(deviceAnalytics.forceHistory),
-      ),
-
-      DeviceGraph(
-        type: GraphType.durationTrend,
-        title: "Fire Duration",
-        data: List<DurationPoint>.from(deviceAnalytics.durationHistory),
       ),
 
       DeviceGraph(
